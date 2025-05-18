@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vegetable Service | Arsalan Shaikh Company</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #ecfdf5;
+      color: #333;
+    }
+
+    header {
+      background: #10b981;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+      animation: fadeInDown 1s ease-out;
+    }
+
+    header h1 {
+      font-size: 32px;
+      margin: 0;
+    }
+
+    header p {
+      font-weight: bold;
+      color: #d1fae5;
+      margin-top: 10px;
+    }
+
+    .content {
+      max-width: 960px;
+      margin: auto;
+      padding: 40px 20px;
+      animation: fadeInUp 1s ease;
+    }
+
+    .section {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      color: #047857;
+      margin-bottom: 20px;
+    }
+
+    .veggie-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .veggie {
+      background: #d1fae5;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .veggie:hover {
+      transform: scale(1.05);
+    }
+
+    .veggie h4 {
+      margin-bottom: 10px;
+      color: #065f46;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input, textarea {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px;
+      background-color: #047857;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #065f46;
+    }
+
+    footer {
+      background: #064e3b;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body><a href="home.html" class="back-btn">← Back</a>
+
+<style>
+  .back-btn {
+    display: inline-block;
+    margin: 20px;
+    padding: 10px 20px;
+    background: #4f46e5;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+  }
+
+  .back-btn:hover {
+    background: #3730a3;
+  }
+</style>
+
+  <header>
+    <h1>Fresh Vegetable Service</h1>
+    <p>Arsalan Shaikh Company</p>
+  </header>
+
+  <div class="content">
+    <div class="section">
+      <h2>Available Vegetables</h2>
+      <div class="veggie-list">
+        <div class="veggie">
+          <h4>Tomatoes</h4>
+          <p>Rs. 25/kg - Farm fresh & juicy</p>
+        </div>
+        <div class="veggie">
+          <h4>Onions</h4>
+          <p>Rs. 30/kg - Clean & crunchy</p>
+        </div>
+        <div class="veggie">
+          <h4>Potatoes</h4>
+          <p>Rs. 20/kg - Soft and starchy</p>
+        </div>
+        <div class="veggie">
+          <h4>Spinach</h4>
+          <p>Rs. 15/bundle - Organic greens</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Place Your Order</h2>
+      <form>
+        <input type="text" placeholder="Your Name" required />
+        <input type="tel" placeholder="Phone Number" required />
+        <input type="text" placeholder="Address" required />
+        <textarea rows="4" placeholder="Order details (e.g. 2kg potatoes, 1kg tomatoes)" required></textarea>
+        <button type="submit">Submit Order</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Arsalan Shaikh Company. All rights reserved.
+  </footer>
+
+</body>
+</html>

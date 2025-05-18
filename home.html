@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online Services | Arsalan Shaikh Company</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #f3f4f6;
+      color: #333;
+      animation: fadeInBody 1s ease;
+    }
+
+    @keyframes fadeInBody {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    header {
+      background: #4f46e5;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      animation: slideDown 1s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 32px;
+    }
+
+    header p {
+      font-weight: 500;
+      margin-top: 5px;
+      color: #e0e7ff;
+    }
+
+    nav {
+      background: #3730a3;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #c7d2fe;
+    }
+
+    .container {
+      padding: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      animation: fadeInUp 1.2s ease;
+    }
+
+    @keyframes fadeInUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+
+    .card img {
+      width: 80px;
+      margin-bottom: 15px;
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+      color: #4f46e5;
+    }
+
+    .card p {
+      font-size: 14px;
+    }
+
+    .card a {
+      text-decoration: none;
+      color: #4f46e5;
+      font-weight: 600;
+    }
+
+    footer {
+      background: #1e1b4b;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      animation: fadeIn 2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Online Services Store</h1>
+    <p>By <strong>Arsalan Shaikh Company</strong></p>
+  </header>
+
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">Services</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <img src="https://img.icons8.com/ios-filled/100/000000/plumber.png" alt="Plumber">
+      <h3><a href="pub.html">PLUMBER</a></h3>
+      <p>Professional plumbing services for home and office.</p>
+    </div>
+
+    <div class="card">
+      <img src="https://img.icons8.com/ios-filled/100/000000/electricity.png" alt="Electrician">
+      <h3><a href="elec .html">ELECTRICIAN</a></h3>
+      <p>Expert electricians for wiring, installation and repair.</p>
+    </div>
+
+    <div class="card">
+      <img src="https://img.icons8.com/ios-filled/100/000000/food.png" alt="Food Service">
+      <h3><a href="foo.html">FOOD SERVICE</a></h3>
+      <p>Delicious homemade food delivered to your doorstep.</p>
+    </div>
+
+    <div class="card">
+      <img src="https://img.icons8.com/ios-filled/100/000000/vegetarian-food.png" alt="Vegetable Service">
+      <h3><a href="veg.html">VEGETABLE SERVICES</a></h3>
+      <p>Fresh and organic vegetables delivered daily.</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Online Services Store | Developed by <strong>Arsalan Shaikh Company</strong></p>
+  </footer>
+</body>
+</html>

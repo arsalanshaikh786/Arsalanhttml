@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Food Services | Arsalan Shaikh Company</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #f9fafb;
+      color: #333;
+    }
+
+    header {
+      background: #ef4444;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+      animation: fadeInDown 1s ease-out;
+    }
+
+    header h1 {
+      font-size: 32px;
+      margin: 0;
+    }
+
+    header p {
+      font-weight: bold;
+      color: #fee2e2;
+      margin-top: 10px;
+    }
+
+    .content {
+      max-width: 960px;
+      margin: auto;
+      padding: 40px 20px;
+      animation: fadeInUp 1s ease;
+    }
+
+    .section {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      color: #ef4444;
+      margin-bottom: 20px;
+    }
+
+    .menu {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .menu-item {
+      background: #fef2f2;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .menu-item:hover {
+      transform: scale(1.05);
+    }
+
+    .menu-item h4 {
+      margin-bottom: 10px;
+      color: #b91c1c;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input, textarea {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px;
+      background-color: #b91c1c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #991b1b;
+    }
+
+    footer {
+      background: #7f1d1d;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<a href="home.html" class="back-btn">← Back</a>
+
+<style>
+  .back-btn {
+    display: inline-block;
+    margin: 20px;
+    padding: 10px 20px;
+    background: #4f46e5;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+  }
+
+  .back-btn:hover {
+    background: #3730a3;
+  }
+</style>
+  <header>
+    <h1>Delicious Food Service</h1>
+    <p>Arsalan Shaikh Company</p>
+  </header>
+
+  <div class="content">
+    <div class="section">
+      <h2>Our Special Menu</h2>
+      <div class="menu">
+        <div class="menu-item">
+          <h4>Chicken Biryani</h4>
+          <p>Spicy and flavorful rice dish.</p>
+        </div>
+        <div class="menu-item">
+          <h4>Paneer Butter Masala</h4>
+          <p>Rich and creamy paneer curry.</p>
+        </div>
+        <div class="menu-item">
+          <h4>Roti / Naan</h4>
+          <p>Soft Indian flatbreads.</p>
+        </div>
+        <div class="menu-item">
+          <h4>Veg Thali</h4>
+          <p>Complete vegetarian meal box.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Place Your Order</h2>
+      <form>
+        <input type="text" placeholder="Your Name" required />
+        <input type="tel" placeholder="Phone Number" required />
+        <input type="email" placeholder="Email Address" required />
+        <textarea rows="4" placeholder="Your order details..." required></textarea>
+        <button type="submit">Submit Order</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Arsalan Shaikh Company. All rights reserved.
+  </footer>
+
+</body>
+</html>
