@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact Us</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8, #e6ecf2);
+      color: #333;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 50px auto;
+      padding: 40px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transform: translateY(50px);
+      animation: fadeInUp 1s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      text-align: center;
+      color: #1a73e8;
+      margin-bottom: 35px;
+      font-weight: 600;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 18px;
+      font-size: 16px;
+      opacity: 0;
+      transform: translateX(-40px);
+      animation: slideInLeft 0.7s ease forwards;
+    }
+
+    .info-item:nth-child(2) { animation-delay: 0.2s; }
+    .info-item:nth-child(3) { animation-delay: 0.4s; }
+    .info-item:nth-child(4) { animation-delay: 0.6s; }
+
+    @keyframes slideInLeft {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .info-item i {
+      font-size: 20px;
+      color: #1a73e8;
+      width: 30px;
+    }
+
+    .buttons {
+      margin: 25px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 0.8s;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    .btn {
+      display: inline-block;
+      background: #1a73e8;
+      color: white;
+      padding: 12px 22px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    .btn:hover {
+      background: #1558b0;
+      transform: scale(1.05);
+    }
+
+    .whatsapp {
+      background: #25d366;
+    }
+
+    .whatsapp:hover {
+      background: #1ebc5c;
+    }
+
+    .map-container {
+      margin-top: 35px;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 1s;
+    }
+
+    iframe {
+      width: 100%;
+      height: 300px;
+      border: none;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 20px;
+        padding: 25px;
+      }
+
+      .buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Contact Us</h1>
+
+    <div class="info-item">
+      <i class="fas fa-phone"></i>
+      <span>+91 97638 14500</span>
+    </div>
+
+    <div class="info-item">
+      <i class="fas fa-envelope"></i>
+      <span>sonushaikh1832008@gmail.com</span>
+    </div>
+
+    <div class="info-item">
+      <i class="fas fa-map-marker-alt"></i>
+      <span>Varad Vinayak Row Housing, Dhamangon Road, Akole</span>
+    </div>
+
+    <div class="buttons">
+      <a href="mailto:sonushaikh1832008@gmail.com" class="btn"><i class="fas fa-paper-plane"></i> Send Email</a>
+      <a href="https://www.instagram.com/itz_arsalan_786___/" target="_blank" class="btn"><i class="fab fa-instagram"></i> Instagram</a>
+      <a href="https://wa.me/919763814500" target="_blank" class="btn whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp Chat</a>
+    </div>
+
+    <div class="map-container">
+      <h2 style="color:#1a73e8; margin-bottom: 10px;">Find Us on Map</h2>
+      <iframe 
+        src="https://www.google.com/maps?q=19.5360666,74.0033219&z=15&output=embed"
+        allowfullscreen>
+      </iframe>
+    </div>
+  </div>
+
+</body>
+</html>
