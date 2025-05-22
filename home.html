@@ -4,130 +4,93 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Online Services | Arsalan Shaikh Company</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
   <style>
+    :root {
+      --primary: #4f46e5;
+      --secondary: #3730a3;
+      --background: #f3f4f6;
+      --card-bg: #ffffff;
+      --text: #333;
+    }
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
     body {
-      margin: 0;
       font-family: 'Poppins', sans-serif;
-      background: #f3f4f6;
-      color: #333;
-      animation: fadeInBody 1s ease;
+      background: var(--background);
+      color: var(--text);
+      animation: fadeIn 1.2s ease-in-out;
     }
-
-    @keyframes fadeInBody {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-
     header {
-      background: #4f46e5;
+      background: linear-gradient(90deg, #4f46e5, #6366f1);
+      padding: 30px 20px;
       color: white;
-      padding: 20px;
       text-align: center;
-      animation: slideDown 1s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
     }
-
-    @keyframes slideDown {
-      from { transform: translateY(-50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    header img {
+      width: 60px;
+      vertical-align: middle;
     }
-
     header h1 {
-      margin: 0;
-      font-size: 32px;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 4px;
     }
-
     header p {
-      font-weight: 500;
-      margin-top: 5px;
+      font-size: 1rem;
+      font-weight: 400;
       color: #e0e7ff;
     }
-
     nav {
-      background: #3730a3;
+      background: var(--secondary);
       display: flex;
       justify-content: center;
-      gap: 20px;
-      padding: 10px;
+      gap: 30px;
+      padding: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
-
     nav a {
       color: white;
       text-decoration: none;
-      font-weight: 500;
-      transition: color 0.3s;
-    }
-
-    nav a:hover {
-      color: #c7d2fe;
-    }
-
-    .container {
-      padding: 30px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      animation: fadeInUp 1.2s ease;
-    }
-
-    @keyframes fadeInUp {
-      from { transform: translateY(30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    .card {
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      padding: 20px;
-      text-align: center;
-      transition: transform 0.3s ease, box-shadow 0.3s;
-    }
-
-    .card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    }
-
-    .card img {
-      width: 80px;
-      margin-bottom: 15px;
-    }
-
-    .card h3 {
-      margin-bottom: 10px;
-      color: #4f46e5;
-    }
-
-    .card p {
-      font-size: 14px;
-    }
-
-    .card a {
-      text-decoration: none;
-      color: #4f46e5;
       font-weight: 600;
+      transition: all 0.3s ease;
     }
-
-    footer {
-      background: #1e1b4b;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      font-size: 14px;
-      animation: fadeIn 2s ease;
+    nav a:hover {
+      color: #a5b4fc;
+      transform: scale(1.05);
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+      nav {
+        gap: 18px;
+        padding: 10px;
+      }
     }
   </style>
 </head>
 <body>
+
   <header>
-    <h1>Online Services Store</h1>
-    <p>By <strong>Arsalan Shaikh Company</strong></p>
+    <img src="https://img.icons8.com/color/96/online-store.png" alt="Logo" />
+    <div>
+      <h1>Online Services Store</h1>
+      <p>By <strong>Arsalan Shaikh Company</strong></p>
+    </div>
   </header>
 
   <nav>
@@ -135,103 +98,172 @@
     <a href="#">Services</a>
     <a href="about.html">About</a>
     <a href="connn.html">Contact</a>
-  </nav>
+  </nav><main class="container">
+    <style>
+      .container {
+        padding: 40px 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+        max-width: 1200px;
+        margin: 0 auto 60px;
+      }
+      .card {
+        background: var(--card-bg);
+        border-radius: 18px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        padding: 25px 20px 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: transform 0.35s ease, box-shadow 0.35s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .card:hover {
+        transform: translateY(-10px) scale(1.03);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.18);
+      }
+      .card img {
+        width: 90px;
+        height: 90px;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+      }
+      .card h3 {
+        font-size: 1.3rem;
+        color: var(--primary);
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+      .card p {
+        color: #555;
+        font-size: 0.95rem;
+        margin-bottom: 18px;
+        line-height: 1.4;
+        flex-grow: 1;
+      }
+      .card a {
+        font-weight: 600;
+        color: var(--primary);
+        text-decoration: none;
+        border-bottom: 2px solid transparent;
+        transition: border-color 0.3s ease;
+      }
+      .card a:hover {
+        border-color: var(--primary);
+      }
+    </style>
 
-  <div class="container">
-    <!-- Repeat card block for each service below -->
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/plumber.png" alt="Plumber">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/plumber.png" alt="Plumber" />
       <h3><a href="pub.html">Plumber</a></h3>
       <p>Professional plumbing services for homes and offices.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/electricity.png" alt="Electrician">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/electricity.png" alt="Electrician" />
       <h3><a href="elec.html">Electrician</a></h3>
       <p>Expert wiring, installations, and repairs.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/hammer.png" alt="Carpenter">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/hammer.png" alt="Carpenter" />
       <h3><a href="#">Carpenter</a></h3>
       <p>Custom furniture, repairs, and fittings.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/paint-brush.png" alt="Painter">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/paint-brush.png" alt="Painter" />
       <h3><a href="#">Painter</a></h3>
       <p>Interior & exterior painting services.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/insect.png" alt="Pest Control">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/insect.png" alt="Pest Control" />
       <h3><a href="#">Pest Control</a></h3>
       <p>Keep your home safe from insects and pests.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/air-conditioner.png" alt="AC Technician">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/air-conditioner.png" alt="AC Technician" />
       <h3><a href="#">AC Technician</a></h3>
       <p>AC repair, service and installation at your doorstep.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/microwave.png" alt="Appliance Repair">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/microwave.png" alt="Appliance Repair" />
       <h3><a href="#">Appliance Repair</a></h3>
       <p>Repair for all major household appliances.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/food.png" alt="Food">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/food.png" alt="Food Delivery" />
       <h3><a href="foo.html">Food Delivery</a></h3>
       <p>Fresh home-cooked meals delivered fast.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/vegetarian-food.png" alt="Vegetables">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/vegetarian-food.png" alt="Vegetables" />
       <h3><a href="veg.html">Vegetables</a></h3>
       <p>Daily fresh vegetables at your door.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/?size=100&id=118857&format=png&color=000000.png" alt="Milk Delivery">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/milk-bottle.png" alt="Milk Delivery" />
       <h3><a href="#">Milk Delivery</a></h3>
       <p>Fresh milk and dairy every morning.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/?size=100&id=94990&format=png&color=000000.png" alt="Tiffin">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/food-bowl.png" alt="Tiffin Services" />
       <h3><a href="#">Tiffin Services</a></h3>
-      <p>Healthy homemade tiffins for students and working professionals.</p>
+      <p>Healthy homemade tiffins for students and professionals.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/hair-dryer.png" alt="Salon">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/hair-dryer.png" alt="Salon at Home" />
       <h3><a href="con.html">Salon at Home</a></h3>
       <p>Haircuts, grooming and spa at your home.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/clean.png" alt="Cleaning">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/clean.png" alt="Deep Cleaning" />
       <h3><a href="#">Deep Cleaning</a></h3>
       <p>Full home deep cleaning by professionals.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/move-by-trolley.png" alt="Movers">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/move-by-trolley.png" alt="Packers & Movers" />
       <h3><a href="#">Packers & Movers</a></h3>
       <p>Reliable shifting of your home or office.</p>
     </div>
 
     <div class="card">
-      <img src="https://img.icons8.com/ios-filled/100/000000/security-checked.png" alt="Security">
+      <img src="https://img.icons8.com/ios-filled/100/4f46e5/security-checked.png" alt="Security Services" />
       <h3><a href="#">Security Services</a></h3>
       <p>Hire trained guards for homes and events.</p>
     </div>
-  </div>
-
-  <footer>
+  </main><footer>
     <p>&copy; 2025 Online Services Store | Developed by <strong>Arsalan Shaikh Company</strong></p>
   </footer>
+
+  <style>
+    footer {
+      background: #1e1b4b;
+      color: white;
+      text-align: center;
+      padding: 20px 15px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      animation: fadeInFooter 2s ease forwards;
+      opacity: 0;
+    }
+    @keyframes fadeInFooter {
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
 </body>
 </html>
