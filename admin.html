@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Panel - Arsalan Shaikh Company</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #fafafa;
+    }
+    h1 {
+      color: #ef4444;
+    }
+    .order {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 1px solid #ddd;
+    }
+    .order strong {
+      color: #b91c1c;
+    }
+    button {
+      margin: 8px 8px 0 0;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+    button.accept {
+      background-color: #22c55e;
+    }
+    button.accept:hover {
+      background-color: #16a34a;
+    }
+    button.reject {
+      background-color: #ef4444;
+    }
+    button.reject:hover {
+      background-color: #b91c1c;
+    }
+    #notification {
+      background-color: #facc15;
+      color: #92400e;
+      padding: 10px 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-weight: bold;
+      display: none;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Admin Dashboard</h1>
+  <div id="notification"></div>
+  <div id="adminOrders">
+    <!-- Orders will load here -->
+  </div>
+
+  <script>
+    const notificationDiv = document.getElementById('notification');
+
+    function loadOrders() {
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+      const container = document.getElementById("adminOrders");
+
+      if (orders.length === 0) {
+        container.innerHTML = "<p>No orders available.</p>";
+        return;
+      }
+
+      container.innerHTML = orders.map((order, i) => `
+        <div class="order">
+          <p><strong>Name:</strong> ${order.name}</p>
+          <p><strong>Phone:</strong> ${order.phone}</p>
+          <p><strong>Address:</strong> ${order.address}</p>
+          <p><strong>Item(s):</strong> ${order.item}</p>
+          <p><strong>Total Amount:</strong> ₹${order.total}</p>
+          <p><strong>Status:</strong> ${order.status}</p>
+          <p><strong>Time:</strong> ${order.time}</p>
+          <button class="accept" onclick="updateStatus(${i}, 'Accepted')">Accept</button>
+          <button class="reject" onclick="updateStatus(${i}, 'Rejected')">Reject</button>
+        </div>
+      `).join('');
+    }
+
+    function updateStatus(index, status) {
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+      if (orders[index]) {
+        orders[index].status = status;
+        localStorage.setItem("orders", JSON.stringify(orders));
+        loadOrders();
+      }
+    }
+
+    function checkNewOrders() {
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+      const lastCount = parseInt(localStorage.getItem("lastOrderCount") || "0", 10);
+      const currentCount = orders.length;
+
+      if (currentCount > lastCount) {
+        const newOrders = currentCount - lastCount;
+        notificationDiv.textContent = `You have ${newOrders} new order${newOrders > 1 ? 's' : ''}!`;
+        notificationDiv.style.display = 'block';
+      } else {
+        notificationDiv.style.display = 'none';
+      }
+
+      localStorage.setItem("lastOrderCount", currentCount);
+    }
+
+    // Initial load and notification check
+    loadOrders();
+    checkNewOrders();
+  </script>
+
+</body>
+</html>

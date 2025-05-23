@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Food Menu | Arsalan Shaikh Company</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9fafb;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1, h2 {
+      color: #ef4444;
+      text-align: center;
+    }
+    .menu-item {
+      background: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .menu-item span {
+      flex: 1;
+    }
+    button.select-btn, .remove-btn {
+      background: #ef4444;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    button.select-btn:hover, .remove-btn:hover {
+      background: #b91c1c;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      margin-top: 30px;
+    }
+    form input, form textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    form button.submit-btn {
+      background: #22c55e;
+      border: none;
+      color: white;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    form button.submit-btn:hover {
+      background: #16a34a;
+    }
+    #selectedItems {
+      background: #fde2e2;
+      padding: 10px;
+      border-radius: 6px;
+      margin: 10px 0 20px 0;
+      font-weight: bold;
+      color: #b91c1c;
+    }
+    #selectedItems ul {
+      list-style-type: disc;
+      padding-left: 20px;
+    }
+    #selectedItems li {
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .check-order {
+      margin-top: 40px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .check-order input {
+      width: 70%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-right: 10px;
+      box-sizing: border-box;
+    }
+    .check-order button {
+      padding: 11px 20px;
+      font-weight: bold;
+      background: #ef4444;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .check-order button:hover {
+      background: #b91c1c;
+    }
+    #orderResult > div {
+      background: #fff1f1;
+      border: 1px solid #fca5a5;
+      padding: 10px;
+      margin-top: 15px;
+      border-radius: 6px;
+    }
+    #orderResult button.cancel-btn {
+      background: #ef4444;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    #orderResult button.cancel-btn:hover {
+      background: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Delicious Food Service</h1>
+  <h2>Select Your Items</h2>
+
+  <div id="menuList"></div>
+
+  <form id="orderForm" onsubmit="submitOrder(event)">
+    <h2>Place Your Order</h2>
+    <div id="selectedItems">No items selected</div>
+    <input type="text" id="name" placeholder="Your Name" required />
+    <input type="tel" id="phone" placeholder="Phone Number" required />
+    <textarea id="address" placeholder="Your Address" rows="3" required></textarea>
+    <button type="submit" class="submit-btn">Submit Order</button>
+  </form>
+
+  <div class="check-order">
+    <h2>Check Your Order</h2>
+    <form onsubmit="checkOrder(event)">
+      <input type="tel" id="checkPhone" placeholder="Enter your phone number" required />
+      <button type="submit">Check</button>
+    </form>
+    <div id="orderResult"></div>
+  </div>
+
+  <script>
+    const menuItems = [
+      { name: "Chicken Biryani", price: 180 },
+      { name: "Paneer Butter Masala", price: 150 },
+      { name: "Roti / Naan", price: 20 },
+      { name: "Veg Thali", price: 120 }
+    ];
+
+    let selectedItems = [];
+
+    const menuListDiv = document.getElementById('menuList');
+    menuItems.forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'menu-item';
+      itemDiv.innerHTML = `
+        <span>${item.name} - ₹${item.price}</span>
+        <button class="select-btn" onclick="selectItem('${item.name}', ${item.price})">Select</button>
+      `;
+      menuListDiv.appendChild(itemDiv);
+    });
+
+    function selectItem(name, price) {
+      if (!selectedItems.find(item => item.name === name)) {
+        selectedItems.push({ name, price });
+        updateSelectedDisplay();
+      }
+    }
+
+    function removeItem(index) {
+      selectedItems.splice(index, 1);
+      updateSelectedDisplay();
+    }
+
+    function updateSelectedDisplay() {
+      const container = document.getElementById('selectedItems');
+      if (selectedItems.length === 0) {
+        container.textContent = 'No items selected';
+      } else {
+        let total = selectedItems.reduce((sum, item) => sum + item.price, 0);
+        container.innerHTML = '<strong>Selected Items:</strong><ul>' +
+          selectedItems.map((item, i) => `
+            <li>
+              ${item.name} - ₹${item.price}
+              <button class="remove-btn" onclick="removeItem(${i})">Remove</button>
+            </li>
+          `).join('') +
+          `</ul><strong>Total: ₹${total}</strong>`;
+      }
+    }
+
+    function submitOrder(event) {
+      event.preventDefault();
+      if (selectedItems.length === 0) {
+        alert('Please select at least one item to order.');
+        return;
+      }
+
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const time = new Date().toLocaleString();
+
+      let orders = JSON.parse(localStorage.getItem('orders')) || [];
+
+      const total = selectedItems.reduce((sum, item) => sum + item.price, 0);
+
+      orders.push({
+        name,
+        phone,
+        address,
+        item: selectedItems.map(i => `${i.name} (₹${i.price})`).join(', '),
+        total,
+        status: 'Pending',
+        time
+      });
+
+      localStorage.setItem('orders', JSON.stringify(orders));
+
+      alert('Order submitted successfully!');
+
+      selectedItems = [];
+      updateSelectedDisplay();
+      document.getElementById('orderForm').reset();
+    }
+
+    function checkOrder(event) {
+      event.preventDefault();
+      const phone = document.getElementById('checkPhone').value.trim();
+      const orders = JSON.parse(localStorage.getItem('orders')) || [];
+      const resultDiv = document.getElementById('orderResult');
+
+      const matchedOrders = orders
+        .map((order, idx) => ({ ...order, idx }))
+        .filter(order => order.phone === phone);
+
+      if (matchedOrders.length === 0) {
+        resultDiv.innerHTML = '<p>No orders found for this phone number.</p>';
+        return;
+      }
+
+      resultDiv.innerHTML = matchedOrders.map(order => `
+        <div>
+          <p><strong>Name:</strong> ${order.name}</p>
+          <p><strong>Items:</strong> ${order.item}</p>
+          <p><strong>Total:</strong> ₹${order.total}</p>
+          <p><strong>Status:</strong> ${order.status}</p>
+          <p><strong>Address:</strong> ${order.address}</p>
+          <p><strong>Ordered At:</strong> ${order.time}</p>
+          <button class="cancel-btn" onclick="cancelOrder(${order.idx})">Cancel This Order</button>
+        </div>
+      `).join('');
+    }
+
+    function cancelOrder(index) {
+      let orders = JSON.parse(localStorage.getItem('orders')) || [];
+      if (index >= 0 && index < orders.length) {
+        if (confirm('Are you sure you want to cancel this order?')) {
+          orders.splice(index, 1);
+          localStorage.setItem('orders', JSON.stringify(orders));
+          alert('Order cancelled successfully.');
+          document.getElementById('orderResult').innerHTML = '';
+          document.getElementById('checkPhone').value = '';
+        }
+      }
+    }
+  </script>
+</body>
+</html>
