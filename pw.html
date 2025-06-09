@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lakshya MHT-CET 2025 - Video Courses</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .sidebar {
+    width: 320px;
+    background: #0d47a1;
+    color: white;
+    overflow-y: auto;
+    padding: 20px;
+    flex-shrink: 0;
+  }
+  .sidebar h1 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    font-weight: 700;
+    border-bottom: 1px solid #1565c0;
+    padding-bottom: 10px;
+  }
+  .subject {
+    margin-bottom: 15px;
+  }
+  .subject > h2 {
+    font-size: 18px;
+    margin: 10px 0 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .chapter-list {
+    margin-left: 15px;
+    display: none;
+  }
+  .chapter {
+    margin-bottom: 10px;
+  }
+  .chapter > h3 {
+    font-size: 16px;
+    cursor: pointer;
+    margin: 5px 0;
+    user-select: none;
+    color: #bbdefb;
+  }
+  .lecture-list {
+    margin-left: 20px;
+    margin-top: 5px;
+    display: none;
+  }
+  .lecture {
+    font-size: 14px;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    color: #e3f2fd;
+  }
+  .lecture:hover {
+    background: #1565c0;
+  }
+  .lecture.active {
+    background: #42a5f5;
+    font-weight: 600;
+  }
+
+  .main-content {
+    flex-grow: 1;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+  }
+  .video-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #333;
+  }
+  iframe {
+    width: 100%;
+    height: 60vh;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  }
+
+  /* Scrollbar styling for sidebar */
+  .sidebar::-webkit-scrollbar {
+    width: 8px;
+  }
+  .sidebar::-webkit-scrollbar-thumb {
+    background: #1565c0;
+    border-radius: 4px;
+  }
+
+  /* Responsive */
+  @media(max-width: 768px) {
+    body {
+      flex-direction: column;
+    }
+    .sidebar {
+      width: 100%;
+      height: 200px;
+      overflow-x: auto;
+      padding: 10px;
+      white-space: nowrap;
+    }
+    .subject, .chapter-list, .lecture-list {
+      display: inline-block !important;
+      margin-left: 10px;
+      vertical-align: top;
+    }
+    .main-content {
+      padding: 10px;
+      height: calc(100vh - 200px);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h1>Lakshya MHT-CET 2025</h1>
+
+  <!-- Subject 1 -->
+  <div class="subject">
+    <h2>Physics</h2>
+    <div class="chapter-list">
+      <div class="chapter">
+        <h3>Mechanics</h3>
+        <ul class="lecture-list">
+          <li class="lecture" data-video="https://www.youtube.com/embed/k1T4jl3Ey14">Motion Basics</li>
+          <li class="lecture" data-video="https://www.youtube.com/embed/9b6qR9XqwqY">Newton's Laws</li>
+        </ul>
+      </div>
+      <div class="chapter">
+        <h3>Thermodynamics</h3>
+        <ul class="lecture-list">
+          <li class="lecture" data-video="https://www.youtube.com/embed/NjTjjPPkU2k">Temperature and Heat</li>
+          <li class="lecture" data-video="https://www.youtube.com/embed/pXoD9WqfZ2c">Laws of Thermodynamics</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subject 2 -->
+  <div class="subject">
+    <h2>Chemistry</h2>
+    <div class="chapter-list">
+      <div class="chapter">
+        <h3>Atomic Structure</h3>
+        <ul class="lecture-list">
+          <li class="lecture" data-video="https://www.youtube.com/embed/h5LcsdHXggY">Atomic Models</li>
+          <li class="lecture" data-video="https://www.youtube.com/embed/8lqxBOQ1Idk">Electron Configuration</li>
+        </ul>
+      </div>
+      <div class="chapter">
+        <h3>Chemical Bonding</h3>
+        <ul class="lecture-list">
+          <li class="lecture" data-video="https://www.youtube.com/embed/Q7ZJNuBq4jM">Ionic Bonds</li>
+          <li class="lecture" data-video="https://www.youtube.com/embed/ZqvhkHtflb4">Covalent Bonds</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subject 3 -->
+  <div class="subject">
+    <h2>Math</h2>
+    <div class="chapter-list">
+      <div class="chapter">
+        <h3>Algebra</h3>
+        <ul class="lecture-list">
+          <li class="lecture" data-video="https://www.youtube.com/embed/QJgPhMF1FGs">Polynomials</li>
+          <li class="lecture" data-video="https://www.youtube.com/embed/U2XdqoqjvP8">Quadratic Equations</li>
+        </ul>
+      </div>
+      <div class="chapter">
+        <h3>Calculus</h3>
+        <ul class="lecture-list">
+          <li class="lecture" data-video="https://www.youtube.com/embed/2a5p_6JPx7M">Limits</li>
+          <li class="lecture" data-video="https://www.youtube.com/embed/Y6Rv6A6_b80">Differentiation</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="main-content">
+  <div class="video-title">Select a lecture to play</div>
+  <iframe src="" allowfullscreen allow="autoplay"></iframe>
+</div>
+
+<script>
+  // Accordion for subjects
+  document.querySelectorAll('.subject > h2').forEach(subject => {
+    subject.addEventListener('click', () => {
+      const chapters = subject.nextElementSibling;
+      const isVisible = chapters.style.display === 'block';
+      // Hide all chapters first
+      document.querySelectorAll('.chapter-list').forEach(c => c.style.display = 'none');
+      if (!isVisible) {
+        chapters.style.display = 'block';
+      }
+    });
+  });
+
+  // Accordion for chapters
+  document.querySelectorAll('.chapter > h3').forEach(chapter => {
+    chapter.addEventListener('click', () => {
+      const lectureList = chapter.nextElementSibling;
+      const isVisible = lectureList.style.display === 'block';
+      // Hide all lecture lists
+      document.querySelectorAll('.lecture-list').forEach(l => l.style.display = 'none');
+      if (!isVisible) {
+        lectureList.style.display = 'block';
+      }
+    });
+  });
+
+  const iframe = document.querySelector('iframe');
+  const videoTitle = document.querySelector('.video-title');
+  let currentLecture = null;
+
+  // Lecture click
+  document.querySelectorAll('.lecture').forEach(lecture => {
+    lecture.addEventListener('click', () => {
+      // Remove active class from previous
+      if(currentLecture) currentLecture.classList.remove('active');
+      lecture.classList.add('active');
+      currentLecture = lecture;
+
+      const videoUrl = lecture.getAttribute('data-video');
+      iframe.src = videoUrl + '?autoplay=1&rel=0';
+      videoTitle.textContent = lecture.textContent;
+    });
+  });
+</script>
+
+</body>
+</html>
