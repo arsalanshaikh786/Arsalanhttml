@@ -3,188 +3,216 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Food Services | Arsalan Shaikh Company</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: #f9fafb;
-      color: #333;
+  <title>Fresh Food Delivery</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, addDoc, deleteDoc, doc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBcXm5QQaYCCddVXNgGqTBAszdKEK-0PJQ",
+      authDomain: "multi-service-app-77dd8.firebaseapp.com",
+      projectId: "multi-service-app-77dd8",
+      storageBucket: "multi-service-app-77dd8.appspot.com",
+      messagingSenderId: "123732555482",
+      appId: "1:123732555482:web:ea47c825e0dbb504f597e3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const productsContainer = document.getElementById("products");
+    const cartContainer = document.getElementById("cart-items");
+    const totalPriceEl = document.getElementById("total-price");
+    const orderForm = document.getElementById("order-form");
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    function renderCart() {
+      cartContainer.innerHTML = "";
+      let total = 0;
+      cart.forEach((item, index) => {
+        const price = parseFloat(item.price); // ✅ Ensure price is number
+        total += price;
+        cartContainer.innerHTML += `<li class='mb-2'>${item.name} - ₹${price}
+          <button onclick="removeItem(${index})" class='ml-2 text-red-600'>✖️</button></li>`;
+      });
+      totalPriceEl.textContent = `Total: ₹${total.toFixed(2)}`;
+      localStorage.setItem("cart", JSON.stringify(cart));
     }
 
-    header {
-      background: #ef4444;
-      color: white;
-      padding: 30px 20px;
-      text-align: center;
-      animation: fadeInDown 1s ease-out;
+    window.removeItem = function(index) {
+      cart.splice(index, 1);
+      renderCart();
+    };
+
+    async function loadProducts() {
+      const querySnapshot = await getDocs(collection(db, "foods"));
+      querySnapshot.forEach((docSnap) => {
+        const food = docSnap.data();
+        const card = document.createElement("div");
+        card.className = "bg-white p-4 rounded-lg shadow-md";
+        card.innerHTML = `
+          <img src="${food.image}" alt="${food.name}" class="w-full h-40 object-cover rounded-md mb-3">
+          <h3 class="text-xl font-semibold">${food.name}</h3>
+          <p class="text-green-700 font-bold">₹${food.price}</p>
+          <button class="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+            onclick='addToCart(${JSON.stringify(food)})'>Add to Cart</button>
+        `;
+        productsContainer.appendChild(card);
+      });
     }
 
-    header h1 {
-      font-size: 32px;
-      margin: 0;
+    window.addToCart = function(food) {
+      cart.push(food);
+      renderCart();
+    };
+
+    orderForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = orderForm.name.value.trim();
+      const email = orderForm.email.value.trim();
+      const mobile = orderForm.mobile.value.trim();
+      const address = orderForm.address.value.trim();
+
+      if (!cart.length) {
+        alert("Your cart is empty!");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "food_orders"), {
+          name,
+          email,
+          mobile,
+          address,
+          cart,
+          status: "pending",
+          timestamp: Date.now()
+        });
+
+        alert("✅ Order placed successfully!");
+        localStorage.setItem("name", name);
+        localStorage.setItem("email", email);
+        localStorage.setItem("address", address);
+        localStorage.setItem("mobile", mobile);
+        cart = [];
+        renderCart();
+        orderForm.reset();
+        autoFillForm();
+      } catch (error) {
+        console.error("Error placing order:", error);
+        alert("❌ Failed to place order.");
+      }
+    });
+
+    function autoFillForm() {
+      orderForm.name.value = localStorage.getItem("name") || "";
+      orderForm.email.value = localStorage.getItem("email") || "";
+      orderForm.mobile.value = localStorage.getItem("mobile") || "";
+      orderForm.address.value = localStorage.getItem("address") || "";
     }
 
-    header p {
-      font-weight: bold;
-      color: #fee2e2;
-      margin-top: 10px;
+    const trackEmailInput = document.querySelector('#track-form input[name="email"]');
+    if (localStorage.getItem("email")) {
+      trackEmailInput.value = localStorage.getItem("email");
     }
 
-    .content {
-      max-width: 960px;
-      margin: auto;
-      padding: 40px 20px;
-      animation: fadeInUp 1s ease;
-    }
+    document.getElementById("track-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value.trim();
+      const ordersRef = collection(db, "food_orders");
+      const snapshot = await getDocs(ordersRef);
+      const result = document.getElementById("track-result");
+      result.innerHTML = "";
+      let found = false;
 
-    .section {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
-    }
+      snapshot.forEach(async (docSnap) => {
+        const data = docSnap.data();
+        if (data.email === email) {
+          found = true;
+          const orderTime = new Date(data.timestamp);
+          const now = new Date();
+          const timeDiff = (now - orderTime) / 1000 / 60;
 
-    .section h2 {
-      color: #ef4444;
-      margin-bottom: 20px;
-    }
+          result.innerHTML += `
+            <div class="border p-3 my-2 rounded bg-gray-50">
+              <p><strong>Order by:</strong> ${data.name}</p>
+              <p><strong>Mobile:</strong> ${data.mobile}</p>
+              <p><strong>Address:</strong> ${data.address}</p>
+              <p><strong>Status:</strong> <span class="text-green-700 font-semibold">${data.status}</span></p>
+              <p><strong>Ordered at:</strong> ${orderTime.toLocaleString()}</p>
+              <p><strong>Items:</strong></p>
+              <ul class="list-disc list-inside mb-2">
+                ${data.cart.map(item => `<li>${item.name} - ₹${item.price}</li>`).join("")}
+              </ul>
+              ${timeDiff <= 5 ? `
+                <button onclick="cancelOrder('${docSnap.id}')" class="bg-red-500 text-white px-4 py-2 rounded">Cancel Order</button>
+              ` : `
+                <p class="text-gray-500 italic">Order can no longer be cancelled.</p>
+              `}
+            </div>
+          `;
+        }
+      });
 
-    .menu {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-    }
+      if (!found) {
+        result.innerHTML = `<p class="text-red-500">No order found with this email.</p>`;
+      }
+    });
 
-    .menu-item {
-      background: #fef2f2;
-      border-radius: 10px;
-      padding: 15px;
-      text-align: center;
-      transition: transform 0.3s ease;
-    }
+    window.cancelOrder = async function(orderId) {
+      if (confirm("Are you sure you want to cancel this order?")) {
+        await deleteDoc(doc(db, "food_orders", orderId));
+        alert("Order cancelled successfully.");
+        document.getElementById("track-form").dispatchEvent(new Event("submit"));
+      }
+    };
 
-    .menu-item:hover {
-      transform: scale(1.05);
-    }
-
-    .menu-item h4 {
-      margin-bottom: 10px;
-      color: #b91c1c;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    input, textarea {
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    button {
-      padding: 12px;
-      background-color: #b91c1c;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    button:hover {
-      background-color: #991b1b;
-    }
-
-    footer {
-      background: #7f1d1d;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      font-size: 14px;
-    }
-
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-40px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(40px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+    loadProducts();
+    renderCart();
+    autoFillForm();
+  </script>
 </head>
-<body>
-<a href="home.html" class="back-btn">← Back</a>
 
-<style>
-  .back-btn {
-    display: inline-block;
-    margin: 20px;
-    padding: 10px 20px;
-    background: #4f46e5;
-    color: white;
-    font-weight: 600;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: background 0.3s ease;
-  }
-
-  .back-btn:hover {
-    background: #3730a3;
-  }
-</style>
-  <header>
-    <h1>Delicious Food Service</h1>
-    <p>Arsalan Shaikh Company</p>
+<body class="bg-gray-100 text-gray-800">
+  <header class="bg-green-600 text-white text-center py-4 text-3xl font-bold shadow">
+    🍽️ Fresh Food Delivery
   </header>
 
-  <div class="content">
-    <div class="section">
-      <h2>Our Special Menu</h2>
-      <div class="menu">
-        <div class="menu-item">
-          <h4>Chicken Biryani</h4>
-          <p>Spicy and flavorful rice dish.</p>
-        </div>
-        <div class="menu-item">
-          <h4>Paneer Butter Masala</h4>
-          <p>Rich and creamy paneer curry.</p>
-        </div>
-        <div class="menu-item">
-          <h4>Roti / Naan</h4>
-          <p>Soft Indian flatbreads.</p>
-        </div>
-        <div class="menu-item">
-          <h4>Veg Thali</h4>
-          <p>Complete vegetarian meal box.</p>
-        </div>
-      </div>
-    </div>
+  <div class="max-w-7xl mx-auto p-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <section class="md:col-span-2">
+      <h2 class="text-2xl font-semibold mb-4">🍲 Food Menu</h2>
+      <div id="products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
 
-    <div class="section">
-      <h2>Place Your Order</h2>
-      <form>
-        <input type="text" placeholder="Your Name" required />
-        <input type="tel" placeholder="Phone Number" required />
-        <input type="email" placeholder="Email Address" required />
-        <textarea rows="4" placeholder="Your order details..." required></textarea>
-        <button type="submit">Submit Order</button>
+    <aside class="bg-white p-4 rounded-xl shadow">
+      <h2 class="text-xl font-semibold mb-2">🛒 Your Cart</h2>
+      <ul id="cart-items" class="mb-2"></ul>
+      <p id="total-price" class="font-bold text-lg mb-4">Total: ₹0</p>
+      <form id="order-form" class="space-y-2">
+        <input type="text" name="name" placeholder="Your Name" required class="w-full p-2 border rounded">
+        <input type="email" name="email" placeholder="Email" required class="w-full p-2 border rounded">
+        <input type="text" name="mobile" placeholder="Mobile Number" required pattern="[0-9]{10}" class="w-full p-2 border rounded">
+        <textarea name="address" placeholder="Address" required class="w-full p-2 border rounded"></textarea>
+        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white w-full py-2 rounded">Place Order</button>
       </form>
-    </div>
+    </aside>
   </div>
 
-  <footer>
-    &copy; 2025 Arsalan Shaikh Company. All rights reserved.
-  </footer>
+  <div class="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-xl shadow">
+    <h2 class="text-xl font-semibold mb-3">📧 Track Your Order</h2>
+    <form id="track-form" class="flex gap-2">
+      <input type="email" name="email" placeholder="Enter your email" required class="flex-1 p-2 border rounded">
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Track</button>
+    </form>
+    <div id="track-result" class="mt-4"></div>
+  </div>
 
+  <footer class="bg-green-600 text-white text-center py-4 mt-10">
+    &copy; 2025 Fresh Food Delivery. All rights reserved.
+  </footer>
 </body>
 </html>
