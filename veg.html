@@ -1,190 +1,203 @@
+<!-- Full working HTML with corrections and improvements -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Vegetable Service | Arsalan Shaikh Company</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: #ecfdf5;
-      color: #333;
+  <title>Fresh Veggies - Online Vegetable Store</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBcXm5QQaYCCddVXNgGqTBAszdKEK-0PJQ",
+      authDomain: "multi-service-app-77dd8.firebaseapp.com",
+      projectId: "multi-service-app-77dd8",
+      storageBucket: "multi-service-app-77dd8.appspot.com",
+      messagingSenderId: "123732555482",
+      appId: "1:123732555482:web:ea47c825e0dbb504f597e3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const vegList = document.getElementById("veg-list");
+    const cartList = document.getElementById("cart-list");
+    const orderForm = document.getElementById("order-form");
+    const trackForm = document.getElementById("track-form");
+    const trackResult = document.getElementById("track-result");
+    let cart = [];
+
+    async function loadVegetables() {
+      vegList.innerHTML = "";
+      const querySnapshot = await getDocs(collection(db, "vegetables"));
+      querySnapshot.forEach((docSnap) => {
+        const veg = docSnap.data();
+        const card = document.createElement("div");
+        card.className = "bg-white shadow-md rounded-xl p-4 m-2 w-full md:w-1/3";
+        card.innerHTML = `
+          <img src="${veg.imageUrl || 'https://via.placeholder.com/150'}" alt="${veg.name}" class="w-full h-40 object-cover rounded mb-2">
+          <h3 class="text-lg font-bold text-green-700">${veg.name}</h3>
+          <p class="text-gray-700">Price: ₹${veg.price}/kg</p>
+          <button class="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded" onclick='addToCart("${docSnap.id}", "${veg.name}", ${veg.price})'>Add to Cart</button>
+        `;
+        vegList.appendChild(card);
+      });
     }
 
-    header {
-      background: #10b981;
-      color: white;
-      padding: 30px 20px;
-      text-align: center;
-      animation: fadeInDown 1s ease-out;
+    window.addToCart = function (id, name, price) {
+      cart.push({ id, name, price });
+      displayCart();
+    };
+
+    function displayCart() {
+      cartList.innerHTML = "";
+      cart.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "bg-gray-100 p-2 my-1 rounded";
+        div.textContent = `${item.name} - ₹${item.price}`;
+        cartList.appendChild(div);
+      });
     }
 
-    header h1 {
-      font-size: 32px;
-      margin: 0;
+    orderForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const name = orderForm.name.value;
+      const address = orderForm.address.value;
+      const phone = orderForm.phone.value;
+      const email = orderForm.email.value;
+
+      localStorage.setItem("userEmail", email);
+      localStorage.setItem("userPhone", phone);
+      localStorage.setItem("userAddress", address);
+
+      await addDoc(collection(db, "orders"), {
+        name,
+        address,
+        phone,
+        email,
+        cart,
+        status: "pending",
+        createdAt: Date.now()
+      });
+
+      alert("Order placed successfully!");
+      cart = [];
+      displayCart();
+      orderForm.reset();
+      document.querySelector("#track-form input[name=email]").value = email;
+    };
+
+    trackForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const email = trackForm.email.value;
+      loadOrders(email);
+    };
+
+    async function loadOrders(email) {
+      const q = query(collection(db, "orders"), where("email", "==", email));
+      const querySnapshot = await getDocs(q);
+      trackResult.innerHTML = "";
+
+      if (querySnapshot.empty) {
+        trackResult.innerHTML = "<p class='text-red-600'>No order found with this email.</p>";
+        return;
+      }
+
+      querySnapshot.forEach((docSnap) => {
+        const order = docSnap.data();
+        const orderId = docSnap.id;
+
+        const div = document.createElement("div");
+        div.className = "bg-white p-4 rounded shadow mt-2";
+        let statusColor = order.status === "accepted" ? "text-green-600"
+                          : order.status === "rejected" ? "text-red-600"
+                          : order.status === "cancelled" ? "text-gray-500"
+                          : "text-yellow-500";
+
+        const canCancel = Date.now() - order.createdAt <= 300000 && order.status === "pending";
+        let cancelButton = canCancel ? `<button class='mt-2 bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded' onclick='cancelOrder("${orderId}", "${email}")'>Cancel Order</button>` : "";
+
+        div.innerHTML = `
+          <p><strong>Status:</strong> <span class="${statusColor} font-semibold capitalize">${order.status}</span></p>
+          <p><strong>Name:</strong> ${order.name}</p>
+          <p><strong>Address:</strong> ${order.address}</p>
+          <p><strong>Phone:</strong> ${order.phone}</p>
+          <p><strong>Items:</strong></p>
+          <ul class='list-disc pl-5'>
+            ${order.cart.map(item => `<li>${item.name} - ₹${item.price}</li>`).join("")}
+          </ul>
+          ${cancelButton}
+        `;
+        trackResult.appendChild(div);
+      });
     }
 
-    header p {
-      font-weight: bold;
-      color: #d1fae5;
-      margin-top: 10px;
-    }
+    window.cancelOrder = async function (id, email) {
+      const ref = doc(db, "orders", id);
+      await updateDoc(ref, { status: "cancelled" });
+      alert("Order cancelled successfully!");
+      loadOrders(email);
+    };
 
-    .content {
-      max-width: 960px;
-      margin: auto;
-      padding: 40px 20px;
-      animation: fadeInUp 1s ease;
-    }
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedEmail = localStorage.getItem("userEmail");
+      const savedPhone = localStorage.getItem("userPhone");
+      const savedAddress = localStorage.getItem("userAddress");
+      if (savedEmail) {
+        document.querySelector("#order-form input[name=email]").value = savedEmail;
+        document.querySelector("#track-form input[name=email]").value = savedEmail;
+      }
+      if (savedPhone) document.querySelector("#order-form input[name=phone]").value = savedPhone;
+      if (savedAddress) document.querySelector("#order-form input[name=address]").value = savedAddress;
+    });
 
-    .section {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
-    }
-
-    .section h2 {
-      color: #047857;
-      margin-bottom: 20px;
-    }
-
-    .veggie-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-    }
-
-    .veggie {
-      background: #d1fae5;
-      border-radius: 10px;
-      padding: 15px;
-      text-align: center;
-      transition: transform 0.3s ease;
-    }
-
-    .veggie:hover {
-      transform: scale(1.05);
-    }
-
-    .veggie h4 {
-      margin-bottom: 10px;
-      color: #065f46;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    input, textarea {
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    button {
-      padding: 12px;
-      background-color: #047857;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    button:hover {
-      background-color: #065f46;
-    }
-
-    footer {
-      background: #064e3b;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      font-size: 14px;
-    }
-
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-40px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(40px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+    loadVegetables();
+  </script>
 </head>
-<body><a href="home.html" class="back-btn">← Back</a>
 
-<style>
-  .back-btn {
-    display: inline-block;
-    margin: 20px;
-    padding: 10px 20px;
-    background: #4f46e5;
-    color: white;
-    font-weight: 600;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: background 0.3s ease;
-  }
-
-  .back-btn:hover {
-    background: #3730a3;
-  }
-</style>
-
-  <header>
-    <h1>Fresh Vegetable Service</h1>
-    <p>Arsalan Shaikh Company</p>
+<body class="bg-green-50 text-gray-900 font-sans">
+  <header class="bg-green-600 text-white py-4 shadow">
+    <h1 class="text-center text-3xl font-bold">Fresh Veggies</h1>
+    <p class="text-center text-sm">Get farm-fresh vegetables delivered to your doorstep</p>
   </header>
 
-  <div class="content">
-    <div class="section">
-      <h2>Available Vegetables</h2>
-      <div class="veggie-list">
-        <div class="veggie">
-          <h4>Tomatoes</h4>
-          <p>Rs. 25/kg - Farm fresh & juicy</p>
-        </div>
-        <div class="veggie">
-          <h4>Onions</h4>
-          <p>Rs. 30/kg - Clean & crunchy</p>
-        </div>
-        <div class="veggie">
-          <h4>Potatoes</h4>
-          <p>Rs. 20/kg - Soft and starchy</p>
-        </div>
-        <div class="veggie">
-          <h4>Spinach</h4>
-          <p>Rs. 15/bundle - Organic greens</p>
-        </div>
-      </div>
-    </div>
+  <main class="p-4 max-w-5xl mx-auto">
+    <section>
+      <h2 class="text-2xl font-semibold text-green-700 mb-2">Available Vegetables</h2>
+      <div id="veg-list" class="flex flex-wrap justify-start"></div>
+    </section>
 
-    <div class="section">
-      <h2>Place Your Order</h2>
-      <form>
-        <input type="text" placeholder="Your Name" required />
-        <input type="tel" placeholder="Phone Number" required />
-        <input type="text" placeholder="Address" required />
-        <textarea rows="4" placeholder="Order details (e.g. 2kg potatoes, 1kg tomatoes)" required></textarea>
-        <button type="submit">Submit Order</button>
+    <section class="mt-8">
+      <h2 class="text-xl font-semibold text-green-700 mb-2">Your Cart</h2>
+      <div id="cart-list" class="mb-4"></div>
+    </section>
+
+    <section class="mt-8">
+      <h2 class="text-xl font-semibold text-green-700 mb-2">Place Your Order</h2>
+      <form id="order-form" class="grid gap-4 max-w-lg">
+        <input class="border p-2 rounded" type="text" name="name" placeholder="Your Name" required>
+        <input class="border p-2 rounded" type="text" name="address" placeholder="Your Address" required>
+        <input class="border p-2 rounded" type="tel" name="phone" placeholder="Phone Number" required>
+        <input class="border p-2 rounded" type="email" name="email" placeholder="Email Address" required>
+        <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded" type="submit">Submit Order</button>
       </form>
-    </div>
-  </div>
+    </section>
 
-  <footer>
-    &copy; 2025 Arsalan Shaikh Company. All rights reserved.
+    <section class="mt-10">
+      <h2 class="text-xl font-semibold text-green-700 mb-2">Track Your Order</h2>
+      <form id="track-form" class="grid gap-4 max-w-lg">
+        <input class="border p-2 rounded" type="email" name="email" placeholder="Enter your email to track order" required>
+        <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded" type="submit">Track Order</button>
+      </form>
+      <div id="track-result" class="mt-4"></div>
+    </section>
+  </main>
+
+  <footer class="bg-green-600 text-white text-center py-2 mt-10">
+    &copy; 2025 Fresh Veggies. All rights reserved.
   </footer>
-
 </body>
 </html>
