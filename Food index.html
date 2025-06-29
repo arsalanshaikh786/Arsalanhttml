@@ -1,0 +1,106 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel - Fresh Veggies</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";if (!localStorage.getItem("adminLoggedIn")) {
+  window.location.href = "login.html";
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBcXm5QQaYCCddVXNgGqTBAszdKEK-0PJQ",
+  authDomain: "multi-service-app-77dd8.firebaseapp.com",
+  projectId: "multi-service-app-77dd8",
+  storageBucket: "multi-service-app-77dd8.appspot.com",
+  messagingSenderId: "123732555482",
+  appId: "1:123732555482:web:ea47c825e0dbb504f597e3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const orderContainer = document.getElementById("orders");
+
+async function loadOrders() {
+  const querySnapshot = await getDocs(collection(db, "orders"));
+  orderContainer.innerHTML = "";
+
+  querySnapshot.forEach((docSnap) => {
+    const order = docSnap.data();
+    const div = document.createElement("div");
+    div.className = "bg-white p-5 rounded-xl shadow-md mb-6 border-l-4 " + getStatusColor(order.status);
+
+    div.innerHTML = `
+      <h3 class="text-lg font-bold mb-1">${order.name}</h3>
+      <p><strong>📍 Address:</strong> ${order.address}</p>
+      <p><strong>📞 Phone:</strong> ${order.phone}</p>
+      <p><strong>✉️ Email:</strong> ${order.email}</p>
+      <p class="mt-2"><strong>📝 Status:</strong> <span class="capitalize font-semibold">${order.status}</span></p>
+      <p class="mt-2 font-semibold">🛒 Items:</p>
+      <ul class="list-disc pl-6 mb-2">
+        ${order.cart.map(item => `<li>${item.name} - ₹${item.price}</li>`).join("")}
+      </ul>
+      <div class="space-x-2 mt-3">
+        <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded" onclick='acceptOrder("${docSnap.id}")'>Accept</button>
+        <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded" onclick='rejectOrder("${docSnap.id}")'>Reject</button>
+        <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded" onclick='completeOrder("${docSnap.id}")'>Completed</button>
+        <button class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-1 rounded" onclick='deleteOrder("${docSnap.id}")'>Delete</button>
+      </div>
+    `;
+    orderContainer.appendChild(div);
+  });
+}
+
+function getStatusColor(status) {
+  switch (status) {
+    case "accepted": return "border-green-500";
+    case "rejected": return "border-red-500";
+    case "completed": return "border-blue-500";
+    default: return "border-yellow-500";
+  }
+}
+
+window.acceptOrder = async function (id) {
+  await updateDoc(doc(db, "orders", id), { status: "accepted" });
+  loadOrders();
+};
+
+window.rejectOrder = async function (id) {
+  await updateDoc(doc(db, "orders", id), { status: "rejected" });
+  loadOrders();
+};
+
+window.completeOrder = async function (id) {
+  await updateDoc(doc(db, "orders", id), { status: "completed" });
+  loadOrders();
+};
+
+window.deleteOrder = async function (id) {
+  await deleteDoc(doc(db, "orders", id));
+  loadOrders();
+};
+
+window.logout = function () {
+  localStorage.removeItem("adminLoggedIn");
+  window.location.href = "login.html";
+}
+
+loadOrders();
+
+  </script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <header class="bg-green-600 text-white py-5 shadow-md relative">
+    <h1 class="text-center text-3xl font-bold">🥕 Admin Panel - Fresh Veggies</h1>
+    <button onclick="logout()" class="absolute top-5 right-5 bg-red-500 text-white px-3 py-1 rounded">Logout</button>
+  </header>  <main class="p-6 max-w-5xl mx-auto">
+    <h2 class="text-2xl font-semibold text-green-700 mb-6">📦 Incoming Orders</h2>
+    <div id="orders"></div>
+  </main>  <footer class="bg-green-600 text-white text-center py-3 mt-10">
+    &copy; 2025 Fresh Veggies Admin. All rights reserved.
+  </footer>
+</body>
+</html>
