@@ -1,13 +1,9 @@
-<!-- Full working HTML with corrections and improvements -->
-<!DOCTYPE html>
-<html lang="en">
+<!-- Full working HTML with Telegram Bot integration, Firebase, and order cancellation alert --><!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Fresh Veggies - Online Vegetable Store</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
-
-  <script type="module">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -73,7 +69,7 @@
       localStorage.setItem("userPhone", phone);
       localStorage.setItem("userAddress", address);
 
-      await addDoc(collection(db, "orders"), {
+      const orderRef = await addDoc(collection(db, "orders"), {
         name,
         address,
         phone,
@@ -81,6 +77,17 @@
         cart,
         status: "pending",
         createdAt: Date.now()
+      });
+
+      const botToken = "7458392373:AAFfQ-C-AZLoQboxuA5fRZEuRoT8ShkRVNE";
+      const chatId = "5547663296";
+      const items = cart.map(item => `🍅 ${item.name} - ₹${item.price}`).join("\n");
+      const telegramMessage = `🛒 *New Order Received!*\n👤 Name: ${name}\n📞 Phone: ${phone}\n📧 Email: ${email}\n🏠 Address: ${address}\n\n${items}`;
+
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, text: telegramMessage, parse_mode: "Markdown" })
       });
 
       alert("Order placed successfully!");
@@ -139,6 +146,16 @@
       const ref = doc(db, "orders", id);
       await updateDoc(ref, { status: "cancelled" });
       alert("Order cancelled successfully!");
+
+      const botToken = "7458392373:AAFfQ-C-AZLoQboxuA5fRZEuRoT8ShkRVNE";
+      const chatId = "5547663296";
+      const cancelMessage = `⚠️ *Order Cancelled*\nOrder ID: ${id}`;
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, text: cancelMessage, parse_mode: "Markdown" })
+      });
+
       loadOrders(email);
     };
 
@@ -155,48 +172,41 @@
     });
 
     loadVegetables();
-  </script>
-</head>
-
+  </script></head>
 <body class="bg-green-50 text-gray-900 font-sans">
   <header class="bg-green-600 text-white py-4 shadow">
     <h1 class="text-center text-3xl font-bold">Fresh Veggies</h1>
     <p class="text-center text-sm">Get farm-fresh vegetables delivered to your doorstep</p>
-  </header>
-
-  <main class="p-4 max-w-5xl mx-auto">
+  </header>  <main class="p-4 max-w-5xl mx-auto">
     <section>
       <h2 class="text-2xl font-semibold text-green-700 mb-2">Available Vegetables</h2>
       <div id="veg-list" class="flex flex-wrap justify-start"></div>
-    </section>
+    </section><section class="mt-8">
+  <h2 class="text-xl font-semibold text-green-700 mb-2">Your Cart</h2>
+  <div id="cart-list" class="mb-4"></div>
+</section>
 
-    <section class="mt-8">
-      <h2 class="text-xl font-semibold text-green-700 mb-2">Your Cart</h2>
-      <div id="cart-list" class="mb-4"></div>
-    </section>
+<section class="mt-8">
+  <h2 class="text-xl font-semibold text-green-700 mb-2">Place Your Order</h2>
+  <form id="order-form" class="grid gap-4 max-w-lg">
+    <input class="border p-2 rounded" type="text" name="name" placeholder="Your Name" required>
+    <input class="border p-2 rounded" type="text" name="address" placeholder="Your Address" required>
+    <input class="border p-2 rounded" type="tel" name="phone" placeholder="Phone Number" required>
+    <input class="border p-2 rounded" type="email" name="email" placeholder="Email Address" required>
+    <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded" type="submit">Submit Order</button>
+  </form>
+</section>
 
-    <section class="mt-8">
-      <h2 class="text-xl font-semibold text-green-700 mb-2">Place Your Order</h2>
-      <form id="order-form" class="grid gap-4 max-w-lg">
-        <input class="border p-2 rounded" type="text" name="name" placeholder="Your Name" required>
-        <input class="border p-2 rounded" type="text" name="address" placeholder="Your Address" required>
-        <input class="border p-2 rounded" type="tel" name="phone" placeholder="Phone Number" required>
-        <input class="border p-2 rounded" type="email" name="email" placeholder="Email Address" required>
-        <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded" type="submit">Submit Order</button>
-      </form>
-    </section>
+<section class="mt-10">
+  <h2 class="text-xl font-semibold text-green-700 mb-2">Track Your Order</h2>
+  <form id="track-form" class="grid gap-4 max-w-lg">
+    <input class="border p-2 rounded" type="email" name="email" placeholder="Enter your email to track order" required>
+    <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded" type="submit">Track Order</button>
+  </form>
+  <div id="track-result" class="mt-4"></div>
+</section>
 
-    <section class="mt-10">
-      <h2 class="text-xl font-semibold text-green-700 mb-2">Track Your Order</h2>
-      <form id="track-form" class="grid gap-4 max-w-lg">
-        <input class="border p-2 rounded" type="email" name="email" placeholder="Enter your email to track order" required>
-        <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded" type="submit">Track Order</button>
-      </form>
-      <div id="track-result" class="mt-4"></div>
-    </section>
-  </main>
-
-  <footer class="bg-green-600 text-white text-center py-2 mt-10">
+  </main>  <footer class="bg-green-600 text-white text-center py-2 mt-10">
     &copy; 2025 Fresh Veggies. All rights reserved.
   </footer>
 </body>
