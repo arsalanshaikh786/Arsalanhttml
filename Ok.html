@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fresh Food Delivery</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .sticky-sidebar { position: sticky; top: 1rem; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <!-- Fixed Header -->
+  <header class="bg-green-600 text-white px-6 py-4 flex justify-between items-center shadow fixed top-0 left-0 w-full z-50">
+    <h1 class="text-2xl font-bold">🍽️ Fresh Food Delivery</h1>
+    <button onclick="document.querySelector('aside').scrollIntoView({ behavior: 'smooth' })"
+      class="relative text-white text-xl">
+      🛒
+      <span id="cart-count" class="absolute -top-2 -right-3 text-sm bg-red-500 rounded-full w-5 h-5 flex items-center justify-center">0</span>
+    </button>
+  </header>
+
+  <div class="pt-24 max-w-7xl mx-auto p-4">
+    <!-- Search & Sort -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
+      <input id="searchInput" type="text" placeholder="Search food..." class="w-full sm:w-1/2 mb-2 sm:mb-0 p-2 border rounded">
+      <select id="sortSelect" class="w-full sm:w-1/4 p-2 border rounded">
+        <option value="">Sort By</option>
+        <option value="name">Name</option>
+        <option value="priceAsc">Price: Low to High</option>
+        <option value="priceDesc">Price: High to Low</option>
+      </select>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Products -->
+      <section class="md:col-span-2">
+        <h2 class="text-2xl font-semibold mb-4">🍲 Food Menu</h2>
+        <div id="products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- Cart Sidebar -->
+      <aside class="bg-white p-4 rounded-xl shadow sticky-sidebar">
+        <h2 class="text-xl font-semibold mb-2">🛒 Your Cart</h2>
+        <ul id="cart-items" class="mb-2"></ul>
+        <p id="total-price" class="font-bold text-lg mb-4">Total: ₹0</p>
+        <form id="order-form" class="space-y-2">
+          <input type="text" name="name" placeholder="Your Name" required class="w-full p-2 border rounded">
+          <input type="email" name="email" placeholder="Email" required class="w-full p-2 border rounded">
+          <input type="text" name="mobile" placeholder="Mobile Number" required pattern="[0-9]{10}" class="w-full p-2 border rounded">
+          <textarea name="address" placeholder="Address" required class="w-full p-2 border rounded"></textarea>
+          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white w-full py-2 rounded">Place Order</button>
+        </form>
+      </aside>
+    </div>
+
+    <!-- Order Tracking -->
+    <div class="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-xl shadow">
+      <h2 class="text-xl font-semibold mb-3">📧 Track Your Order</h2>
+      <form id="track-form" class="flex gap-2">
+        <input type="email" name="email" placeholder="Enter your email" required class="flex-1 p-2 border rounded">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Track</button>
+      </form>
+      <div id="track-result" class="mt-4"></div>
+    </div>
+  </div>
+
+  <footer class="bg-green-600 text-white text-center py-4 mt-10">
+    &copy; 2025 Fresh Food Delivery. All rights reserved.
+  </footer>
+
+  <!-- Firebase & Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, addDoc, deleteDoc, doc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBcXm5QQaYCCddVXNgGqTBAszdKEK-0PJQ",
+      authDomain: "multi-service-app-77dd8.firebaseapp.com",
+      projectId: "multi-service-app-77dd8",
+      storageBucket: "multi-service-app-77dd8.appspot.com",
+      messagingSenderId: "123732555482",
+      appId: "1:123732555482:web:ea47c825e0dbb504f597e3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const productsContainer = document.getElementById("products");
+    const cartContainer = document.getElementById("cart-items");
+    const totalPriceEl = document.getElementById("total-price");
+    const orderForm = document.getElementById("order-form");
+    const searchInput = document.getElementById("searchInput");
+    const sortSelect = document.getElementById("sortSelect");
+    const cartCount = document.getElementById("cart-count");
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let foodItems = [];
+
+    function renderCart() {
+      cartContainer.innerHTML = "";
+      let total = 0;
+      cart.forEach((item, index) => {
+        const price = parseFloat(item.price);
+        total += price;
+        cartContainer.innerHTML += `<li class='mb-2'>${item.name} - ₹${price}
+          <button onclick="removeItem(${index})" class='ml-2 text-red-600'>✖️</button></li>`;
+      });
+      totalPriceEl.textContent = `Total: ₹${total.toFixed(2)}`;
+      cartCount.textContent = cart.length;
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+
+    window.removeItem = function(index) {
+      cart.splice(index, 1);
+      renderCart();
+    };
+
+    function displayProducts(list) {
+      productsContainer.innerHTML = "";
+      list.forEach((food) => {
+        const card = document.createElement("div");
+        card.className = "bg-white p-4 rounded-lg shadow-md";
+        card.innerHTML = `
+          <img src="${food.image}" alt="${food.name}" class="w-full h-40 object-cover rounded-md mb-3">
+          <h3 class="text-xl font-semibold">${food.name}</h3>
+          <p class="text-green-700 font-bold">₹${food.price}</p>
+          <button class="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+            onclick='addToCart(${JSON.stringify(food)})'>Add to Cart</button>
+        `;
+        productsContainer.appendChild(card);
+      });
+    }
+
+    async function loadProducts() {
+      const querySnapshot = await getDocs(collection(db, "foods"));
+      foodItems = [];
+      querySnapshot.forEach((docSnap) => {
+        foodItems.push(docSnap.data());
+      });
+      displayProducts(foodItems);
+    }
+
+    window.addToCart = function(food) {
+      cart.push(food);
+      renderCart();
+    };
+
+    orderForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = orderForm.name.value.trim();
+      const email = orderForm.email.value.trim();
+      const mobile = orderForm.mobile.value.trim();
+      const address = orderForm.address.value.trim();
+
+      if (!cart.length) return alert("Your cart is empty!");
+
+      const order = {
+        name, email, mobile, address, cart,
+        status: "pending", timestamp: Date.now()
+      };
+
+      try {
+        await addDoc(collection(db, "food_orders"), order);
+
+        // ✅ Telegram notification
+        const botToken = "YOUR_BOT_TOKEN";
+        const chatId = "YOUR_CHAT_ID";
+        const items = cart.map(i => `• ${i.name} - ₹${i.price}`).join('%0A');
+        const text = `🍽️ *New Order*%0A👤 ${name}%0A📧 ${email}%0A📱 ${mobile}%0A🏠 ${address}%0A🛒 Items:%0A${items}`;
+
+        fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${text}&parse_mode=Markdown`);
+
+        alert("✅ Order placed!");
+        localStorage.setItem("name", name);
+        localStorage.setItem("email", email);
+        localStorage.setItem("mobile", mobile);
+        localStorage.setItem("address", address);
+        cart = [];
+        renderCart();
+        orderForm.reset();
+        autoFillForm();
+      } catch (err) {
+        console.error("Order error:", err);
+        alert("❌ Failed to place order.");
+      }
+    });
+
+    function autoFillForm() {
+      orderForm.name.value = localStorage.getItem("name") || "";
+      orderForm.email.value = localStorage.getItem("email") || "";
+      orderForm.mobile.value = localStorage.getItem("mobile") || "";
+      orderForm.address.value = localStorage.getItem("address") || "";
+    }
+
+    document.getElementById("track-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value.trim();
+      const result = document.getElementById("track-result");
+      const snapshot = await getDocs(collection(db, "food_orders"));
+      result.innerHTML = "";
+      let found = false;
+
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.email === email) {
+          found = true;
+          const time = new Date(data.timestamp);
+          const mins = (new Date() - time) / 60000;
+
+          result.innerHTML += `
+            <div class="border p-3 my-2 rounded bg-gray-50">
+              <p><strong>Name:</strong> ${data.name}</p>
+              <p><strong>Status:</strong> <span class="text-green-700">${data.status}</span></p>
+              <p><strong>Ordered At:</strong> ${time.toLocaleString()}</p>
+              <p><strong>Items:</strong></p>
+              <ul class="list-disc list-inside">
+                ${data.cart.map(i => `<li>${i.name} - ₹${i.price}</li>`).join("")}
+              </ul>
+              ${mins <= 5 ? `<button onclick="cancelOrder('${docSnap.id}')" class="mt-2 bg-red-500 text-white px-3 py-1 rounded">Cancel</button>` :
+                `<p class="italic text-sm text-gray-600">Cancellation window expired.</p>`}
+            </div>`;
+        }
+      });
+
+      if (!found) result.innerHTML = `<p class="text-red-600">No orders found for this email.</p>`;
+    });
+
+    window.cancelOrder = async function(orderId) {
+      if (confirm("Cancel this order?")) {
+        await deleteDoc(doc(db, "food_orders", orderId));
+        alert("Order cancelled.");
+        document.getElementById("track-form").dispatchEvent(new Event("submit"));
+      }
+    };
+
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.toLowerCase();
+      displayProducts(foodItems.filter(f => f.name.toLowerCase().includes(q)));
+    });
+
+    sortSelect.addEventListener("change", () => {
+      let sorted = [...foodItems];
+      if (sortSelect.value === "name") sorted.sort((a, b) => a.name.localeCompare(b.name));
+      if (sortSelect.value === "priceAsc") sorted.sort((a, b) => a.price - b.price);
+      if (sortSelect.value === "priceDesc") sorted.sort((a, b) => b.price - a.price);
+      displayProducts(sorted);
+    });
+
+    loadProducts();
+    renderCart();
+    autoFillForm();
+  </script>
+</body>
+        </html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fresh Food Delivery</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .sticky-sidebar { position: sticky; top: 1rem; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <!-- Fixed Header -->
+  <header class="bg-green-600 text-white px-6 py-4 flex justify-between items-center shadow fixed top-0 left-0 w-full z-50">
+    <h1 class="text-2xl font-bold">🍽️ Fresh Food Delivery</h1>
+    <button onclick="document.querySelector('aside').scrollIntoView({ behavior: 'smooth' })"
+      class="relative text-white text-xl">
+      🛒
+      <span id="cart-count" class="absolute -top-2 -right-3 text-sm bg-red-500 rounded-full w-5 h-5 flex items-center justify-center">0</span>
+    </button>
+  </header>
+
+  <div class="pt-24 max-w-7xl mx-auto p-4">
+    <!-- Search & Sort -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
+      <input id="searchInput" type="text" placeholder="Search food..." class="w-full sm:w-1/2 mb-2 sm:mb-0 p-2 border rounded">
+      <select id="sortSelect" class="w-full sm:w-1/4 p-2 border rounded">
+        <option value="">Sort By</option>
+        <option value="name">Name</option>
+        <option value="priceAsc">Price: Low to High</option>
+        <option value="priceDesc">Price: High to Low</option>
+      </select>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Products -->
+      <section class="md:col-span-2">
+        <h2 class="text-2xl font-semibold mb-4">🍲 Food Menu</h2>
+        <div id="products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- Cart Sidebar -->
+      <aside class="bg-white p-4 rounded-xl shadow sticky-sidebar">
+        <h2 class="text-xl font-semibold mb-2">🛒 Your Cart</h2>
+        <ul id="cart-items" class="mb-2"></ul>
+        <p id="total-price" class="font-bold text-lg mb-4">Total: ₹0</p>
+        <form id="order-form" class="space-y-2">
+          <input type="text" name="name" placeholder="Your Name" required class="w-full p-2 border rounded">
+          <input type="email" name="email" placeholder="Email" required class="w-full p-2 border rounded">
+          <input type="text" name="mobile" placeholder="Mobile Number" required pattern="[0-9]{10}" class="w-full p-2 border rounded">
+          <textarea name="address" placeholder="Address" required class="w-full p-2 border rounded"></textarea>
+          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white w-full py-2 rounded">Place Order</button>
+        </form>
+      </aside>
+    </div>
+
+    <!-- Order Tracking -->
+    <div class="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-xl shadow">
+      <h2 class="text-xl font-semibold mb-3">📧 Track Your Order</h2>
+      <form id="track-form" class="flex gap-2">
+        <input type="email" name="email" placeholder="Enter your email" required class="flex-1 p-2 border rounded">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Track</button>
+      </form>
+      <div id="track-result" class="mt-4"></div>
+    </div>
+  </div>
+
+  <footer class="bg-green-600 text-white text-center py-4 mt-10">
+    &copy; 2025 Fresh Food Delivery. All rights reserved.
+  </footer>
+
+  <!-- Firebase & Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, addDoc, deleteDoc, doc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBcXm5QQaYCCddVXNgGqTBAszdKEK-0PJQ",
+      authDomain: "multi-service-app-77dd8.firebaseapp.com",
+      projectId: "multi-service-app-77dd8",
+      storageBucket: "multi-service-app-77dd8.appspot.com",
+      messagingSenderId: "123732555482",
+      appId: "1:123732555482:web:ea47c825e0dbb504f597e3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const productsContainer = document.getElementById("products");
+    const cartContainer = document.getElementById("cart-items");
+    const totalPriceEl = document.getElementById("total-price");
+    const orderForm = document.getElementById("order-form");
+    const searchInput = document.getElementById("searchInput");
+    const sortSelect = document.getElementById("sortSelect");
+    const cartCount = document.getElementById("cart-count");
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let foodItems = [];
+
+    function renderCart() {
+      cartContainer.innerHTML = "";
+      let total = 0;
+      cart.forEach((item, index) => {
+        const price = parseFloat(item.price);
+        total += price;
+        cartContainer.innerHTML += `<li class='mb-2'>${item.name} - ₹${price}
+          <button onclick="removeItem(${index})" class='ml-2 text-red-600'>✖️</button></li>`;
+      });
+      totalPriceEl.textContent = `Total: ₹${total.toFixed(2)}`;
+      cartCount.textContent = cart.length;
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+
+    window.removeItem = function(index) {
+      cart.splice(index, 1);
+      renderCart();
+    };
+
+    function displayProducts(list) {
+      productsContainer.innerHTML = "";
+      list.forEach((food) => {
+        const card = document.createElement("div");
+        card.className = "bg-white p-4 rounded-lg shadow-md";
+        card.innerHTML = `
+          <img src="${food.image}" alt="${food.name}" class="w-full h-40 object-cover rounded-md mb-3">
+          <h3 class="text-xl font-semibold">${food.name}</h3>
+          <p class="text-green-700 font-bold">₹${food.price}</p>
+          <button class="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+            onclick='addToCart(${JSON.stringify(food)})'>Add to Cart</button>
+        `;
+        productsContainer.appendChild(card);
+      });
+    }
+
+    async function loadProducts() {
+      const querySnapshot = await getDocs(collection(db, "foods"));
+      foodItems = [];
+      querySnapshot.forEach((docSnap) => {
+        foodItems.push(docSnap.data());
+      });
+      displayProducts(foodItems);
+    }
+
+    window.addToCart = function(food) {
+      cart.push(food);
+      renderCart();
+    };
+
+    orderForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = orderForm.name.value.trim();
+      const email = orderForm.email.value.trim();
+      const mobile = orderForm.mobile.value.trim();
+      const address = orderForm.address.value.trim();
+
+      if (!cart.length) return alert("Your cart is empty!");
+
+      const order = {
+        name, email, mobile, address, cart,
+        status: "pending", timestamp: Date.now()
+      };
+
+      try {
+        await addDoc(collection(db, "food_orders"), order);
+
+        // ✅ Telegram notification
+        const botToken = "YOUR_BOT_TOKEN";
+        const chatId = "YOUR_CHAT_ID";
+        const items = cart.map(i => `• ${i.name} - ₹${i.price}`).join('%0A');
+        const text = `🍽️ *New Order*%0A👤 ${name}%0A📧 ${email}%0A📱 ${mobile}%0A🏠 ${address}%0A🛒 Items:%0A${items}`;
+
+        fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${text}&parse_mode=Markdown`);
+
+        alert("✅ Order placed!");
+        localStorage.setItem("name", name);
+        localStorage.setItem("email", email);
+        localStorage.setItem("mobile", mobile);
+        localStorage.setItem("address", address);
+        cart = [];
+        renderCart();
+        orderForm.reset();
+        autoFillForm();
+      } catch (err) {
+        console.error("Order error:", err);
+        alert("❌ Failed to place order.");
+      }
+    });
+
+    function autoFillForm() {
+      orderForm.name.value = localStorage.getItem("name") || "";
+      orderForm.email.value = localStorage.getItem("email") || "";
+      orderForm.mobile.value = localStorage.getItem("mobile") || "";
+      orderForm.address.value = localStorage.getItem("address") || "";
+    }
+
+    document.getElementById("track-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value.trim();
+      const result = document.getElementById("track-result");
+      const snapshot = await getDocs(collection(db, "food_orders"));
+      result.innerHTML = "";
+      let found = false;
+
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.email === email) {
+          found = true;
+          const time = new Date(data.timestamp);
+          const mins = (new Date() - time) / 60000;
+
+          result.innerHTML += `
+            <div class="border p-3 my-2 rounded bg-gray-50">
+              <p><strong>Name:</strong> ${data.name}</p>
+              <p><strong>Status:</strong> <span class="text-green-700">${data.status}</span></p>
+              <p><strong>Ordered At:</strong> ${time.toLocaleString()}</p>
+              <p><strong>Items:</strong></p>
+              <ul class="list-disc list-inside">
+                ${data.cart.map(i => `<li>${i.name} - ₹${i.price}</li>`).join("")}
+              </ul>
+              ${mins <= 5 ? `<button onclick="cancelOrder('${docSnap.id}')" class="mt-2 bg-red-500 text-white px-3 py-1 rounded">Cancel</button>` :
+                `<p class="italic text-sm text-gray-600">Cancellation window expired.</p>`}
+            </div>`;
+        }
+      });
+
+      if (!found) result.innerHTML = `<p class="text-red-600">No orders found for this email.</p>`;
+    });
+
+    window.cancelOrder = async function(orderId) {
+      if (confirm("Cancel this order?")) {
+        await deleteDoc(doc(db, "food_orders", orderId));
+        alert("Order cancelled.");
+        document.getElementById("track-form").dispatchEvent(new Event("submit"));
+      }
+    };
+
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.toLowerCase();
+      displayProducts(foodItems.filter(f => f.name.toLowerCase().includes(q)));
+    });
+
+    sortSelect.addEventListener("change", () => {
+      let sorted = [...foodItems];
+      if (sortSelect.value === "name") sorted.sort((a, b) => a.name.localeCompare(b.name));
+      if (sortSelect.value === "priceAsc") sorted.sort((a, b) => a.price - b.price);
+      if (sortSelect.value === "priceDesc") sorted.sort((a, b) => b.price - a.price);
+      displayProducts(sorted);
+    });
+
+    loadProducts();
+    renderCart();
+    autoFillForm();
+  </script>
+</body>
+  </html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fresh Food Delivery</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .sticky-sidebar { position: sticky; top: 1rem; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <!-- Fixed Header -->
+  <header class="bg-green-600 text-white px-6 py-4 flex justify-between items-center shadow fixed top-0 left-0 w-full z-50">
+    <h1 class="text-2xl font-bold">🍽️ Fresh Food Delivery</h1>
+    <button onclick="document.querySelector('aside').scrollIntoView({ behavior: 'smooth' })"
+      class="relative text-white text-xl">
+      🛒
+      <span id="cart-count" class="absolute -top-2 -right-3 text-sm bg-red-500 rounded-full w-5 h-5 flex items-center justify-center">0</span>
+    </button>
+  </header>
+
+  <div class="pt-24 max-w-7xl mx-auto p-4">
+    <!-- Search & Sort -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
+      <input id="searchInput" type="text" placeholder="Search food..." class="w-full sm:w-1/2 mb-2 sm:mb-0 p-2 border rounded">
+      <select id="sortSelect" class="w-full sm:w-1/4 p-2 border rounded">
+        <option value="">Sort By</option>
+        <option value="name">Name</option>
+        <option value="priceAsc">Price: Low to High</option>
+        <option value="priceDesc">Price: High to Low</option>
+      </select>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Products -->
+      <section class="md:col-span-2">
+        <h2 class="text-2xl font-semibold mb-4">🍲 Food Menu</h2>
+        <div id="products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- Cart Sidebar -->
+      <aside class="bg-white p-4 rounded-xl shadow sticky-sidebar">
+        <h2 class="text-xl font-semibold mb-2">🛒 Your Cart</h2>
+        <ul id="cart-items" class="mb-2"></ul>
+        <p id="total-price" class="font-bold text-lg mb-4">Total: ₹0</p>
+        <form id="order-form" class="space-y-2">
+          <input type="text" name="name" placeholder="Your Name" required class="w-full p-2 border rounded">
+          <input type="email" name="email" placeholder="Email" required class="w-full p-2 border rounded">
+          <input type="text" name="mobile" placeholder="Mobile Number" required pattern="[0-9]{10}" class="w-full p-2 border rounded">
+          <textarea name="address" placeholder="Address" required class="w-full p-2 border rounded"></textarea>
+          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white w-full py-2 rounded">Place Order</button>
+        </form>
+      </aside>
+    </div>
+
+    <!-- Order Tracking -->
+    <div class="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-xl shadow">
+      <h2 class="text-xl font-semibold mb-3">📧 Track Your Order</h2>
+      <form id="track-form" class="flex gap-2">
+        <input type="email" name="email" placeholder="Enter your email" required class="flex-1 p-2 border rounded">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Track</button>
+      </form>
+      <div id="track-result" class="mt-4"></div>
+    </div>
+  </div>
+
+  <footer class="bg-green-600 text-white text-center py-4 mt-10">
+    &copy; 2025 Fresh Food Delivery. All rights reserved.
+  </footer>
+
+  <!-- Firebase & Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, addDoc, deleteDoc, doc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBcXm5QQaYCCddVXNgGqTBAszdKEK-0PJQ",
+      authDomain: "multi-service-app-77dd8.firebaseapp.com",
+      projectId: "multi-service-app-77dd8",
+      storageBucket: "multi-service-app-77dd8.appspot.com",
+      messagingSenderId: "123732555482",
+      appId: "1:123732555482:web:ea47c825e0dbb504f597e3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const productsContainer = document.getElementById("products");
+    const cartContainer = document.getElementById("cart-items");
+    const totalPriceEl = document.getElementById("total-price");
+    const orderForm = document.getElementById("order-form");
+    const searchInput = document.getElementById("searchInput");
+    const sortSelect = document.getElementById("sortSelect");
+    const cartCount = document.getElementById("cart-count");
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let foodItems = [];
+
+    function renderCart() {
+      cartContainer.innerHTML = "";
+      let total = 0;
+      cart.forEach((item, index) => {
+        const price = parseFloat(item.price);
+        total += price;
+        cartContainer.innerHTML += `<li class='mb-2'>${item.name} - ₹${price}
+          <button onclick="removeItem(${index})" class='ml-2 text-red-600'>✖️</button></li>`;
+      });
+      totalPriceEl.textContent = `Total: ₹${total.toFixed(2)}`;
+      cartCount.textContent = cart.length;
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+
+    window.removeItem = function(index) {
+      cart.splice(index, 1);
+      renderCart();
+    };
+
+    function displayProducts(list) {
+      productsContainer.innerHTML = "";
+      list.forEach((food) => {
+        const card = document.createElement("div");
+        card.className = "bg-white p-4 rounded-lg shadow-md";
+        card.innerHTML = `
+          <img src="${food.image}" alt="${food.name}" class="w-full h-40 object-cover rounded-md mb-3">
+          <h3 class="text-xl font-semibold">${food.name}</h3>
+          <p class="text-green-700 font-bold">₹${food.price}</p>
+          <button class="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+            onclick='addToCart(${JSON.stringify(food)})'>Add to Cart</button>
+        `;
+        productsContainer.appendChild(card);
+      });
+    }
+
+    async function loadProducts() {
+      const querySnapshot = await getDocs(collection(db, "foods"));
+      foodItems = [];
+      querySnapshot.forEach((docSnap) => {
+        foodItems.push(docSnap.data());
+      });
+      displayProducts(foodItems);
+    }
+
+    window.addToCart = function(food) {
+      cart.push(food);
+      renderCart();
+    };
+
+    orderForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = orderForm.name.value.trim();
+      const email = orderForm.email.value.trim();
+      const mobile = orderForm.mobile.value.trim();
+      const address = orderForm.address.value.trim();
+
+      if (!cart.length) return alert("Your cart is empty!");
+
+      const order = {
+        name, email, mobile, address, cart,
+        status: "pending", timestamp: Date.now()
+      };
+
+      try {
+        await addDoc(collection(db, "food_orders"), order);
+
+        // ✅ Telegram notification
+        const botToken = "YOUR_BOT_TOKEN";
+        const chatId = "YOUR_CHAT_ID";
+        const items = cart.map(i => `• ${i.name} - ₹${i.price}`).join('%0A');
+        const text = `🍽️ *New Order*%0A👤 ${name}%0A📧 ${email}%0A📱 ${mobile}%0A🏠 ${address}%0A🛒 Items:%0A${items}`;
+
+        fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${text}&parse_mode=Markdown`);
+
+        alert("✅ Order placed!");
+        localStorage.setItem("name", name);
+        localStorage.setItem("email", email);
+        localStorage.setItem("mobile", mobile);
+        localStorage.setItem("address", address);
+        cart = [];
+        renderCart();
+        orderForm.reset();
+        autoFillForm();
+      } catch (err) {
+        console.error("Order error:", err);
+        alert("❌ Failed to place order.");
+      }
+    });
+
+    function autoFillForm() {
+      orderForm.name.value = localStorage.getItem("name") || "";
+      orderForm.email.value = localStorage.getItem("email") || "";
+      orderForm.mobile.value = localStorage.getItem("mobile") || "";
+      orderForm.address.value = localStorage.getItem("address") || "";
+    }
+
+    document.getElementById("track-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value.trim();
+      const result = document.getElementById("track-result");
+      const snapshot = await getDocs(collection(db, "food_orders"));
+      result.innerHTML = "";
+      let found = false;
+
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.email === email) {
+          found = true;
+          const time = new Date(data.timestamp);
+          const mins = (new Date() - time) / 60000;
+
+          result.innerHTML += `
+            <div class="border p-3 my-2 rounded bg-gray-50">
+              <p><strong>Name:</strong> ${data.name}</p>
+              <p><strong>Status:</strong> <span class="text-green-700">${data.status}</span></p>
+              <p><strong>Ordered At:</strong> ${time.toLocaleString()}</p>
+              <p><strong>Items:</strong></p>
+              <ul class="list-disc list-inside">
+                ${data.cart.map(i => `<li>${i.name} - ₹${i.price}</li>`).join("")}
+              </ul>
+              ${mins <= 5 ? `<button onclick="cancelOrder('${docSnap.id}')" class="mt-2 bg-red-500 text-white px-3 py-1 rounded">Cancel</button>` :
+                `<p class="italic text-sm text-gray-600">Cancellation window expired.</p>`}
+            </div>`;
+        }
+      });
+
+      if (!found) result.innerHTML = `<p class="text-red-600">No orders found for this email.</p>`;
+    });
+
+    window.cancelOrder = async function(orderId) {
+      if (confirm("Cancel this order?")) {
+        await deleteDoc(doc(db, "food_orders", orderId));
+        alert("Order cancelled.");
+        document.getElementById("track-form").dispatchEvent(new Event("submit"));
+      }
+    };
+
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.toLowerCase();
+      displayProducts(foodItems.filter(f => f.name.toLowerCase().includes(q)));
+    });
+
+    sortSelect.addEventListener("change", () => {
+      let sorted = [...foodItems];
+      if (sortSelect.value === "name") sorted.sort((a, b) => a.name.localeCompare(b.name));
+      if (sortSelect.value === "priceAsc") sorted.sort((a, b) => a.price - b.price);
+      if (sortSelect.value === "priceDesc") sorted.sort((a, b) => b.price - a.price);
+      displayProducts(sorted);
+    });
+
+    loadProducts();
+    renderCart();
+    autoFillForm();
+  </script>
+</body>
+</html>
