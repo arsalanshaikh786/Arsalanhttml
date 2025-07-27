@@ -2,232 +2,213 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ProFlow Plumbing Solutions</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Plumbing Services - BeSure</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      font-family: 'Roboto', sans-serif;
-      background-color: #f9f9f9;
-      color: #333;
-      scroll-behavior: smooth;
-    }
-
-    header {
-      background-color: #0a9396;
-      color: white;
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .logo {
-      font-size: 28px;
-      font-weight: bold;
-      animation: slideIn 1s ease-out;
-    }
-
-    nav a {
-      color: white;
-      margin: 0 15px;
-      text-decoration: none;
-      font-weight: 500;
-      position: relative;
-    }
-
-    nav a::after {
-      content: "";
-      position: absolute;
-      width: 0%;
-      height: 2px;
-      background: white;
-      left: 0;
-      bottom: -5px;
-      transition: 0.3s;
-    }
-
-    nav a:hover::after {
-      width: 100%;
-    }
-
-    section {
-      padding: 50px 20px;
-      max-width: 1200px;
-      margin: auto;
-      animation: fadeIn 1s ease-in;
-    }
-
-    h2 {
-      color: #0a9396;
-      margin-bottom: 20px;
-    }<a href="index.html" class="back-btn">← Back</a>
-
-<style>
-  .back-btn {
-    display: inline-block;
-    margin: 20px;
-    padding: 10px 20px;
-    background: #4f46e5;
-    color: white;
-    font-weight: 600;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: backgrou
-    .services
-      display: flex
-      gap: 20px
-      flex-wrap
-      justify-content: space-around;
-    }
-
-    .service {
-      flex: 1 1 250px;
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
-    }
-
-    .service:hover {
-      transform: translateY(-10px);
-    }
-
-    form {
-      max-width: 500px;
-      margin: auto;
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    input, textarea {
-      width: 100%;
-      margin-bottom: 15px;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-
-    button {
-      background-color: #0a9396;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #00777a;
-    }
-
-    footer {
-      background-color: #0a9396;
-      color: white;
-      text-align: center;
-      padding: 20px;
-      font-size: 14px;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-50px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    @media (max-width: 768px) {
-      .services {
-        flex-direction: column;
-        align-items: center;
-      }
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      nav {
-        margin-top: 10px;
-      }
-    }
+    body { font-family: 'Inter', sans-serif; }
+    #chatBox, #trackBox { display: none; }
   </style>
 </head>
-<body>
-<a href="home.html" class="back-btn">← Back</a>
+<body class="bg-gray-100 text-gray-900">
 
-<style>
-  .back-btn {
-    display: inline-block;
-    margin: 20px;
-    padding: 10px 20px;
-    background: #4f46e5;
-    color: white;
-    font-weight: 600;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: background 0.3s ease;
-  }
-
-  .back-btn:hover {
-    background: #3730a3;
-  }
-</style>
-<header>
-  <div class="logo">ProFlow Plumbing</div>
-  <nav>
-    <a href="#about">About</a>
-    <a href="#services">Services</a>
-    <a href="#contact">Contact</a>
-  </nav>
-</header>
-
-<section id="about">
-  <h2>About Us</h2>
-  <p>With over a decade of experience, ProFlow Plumbing provides expert solutions for all your plumbing needs. We're fast, reliable, and available 24/7.</p>
-</section>
-
-<section id="services">
-  <h2>Our Services</h2>
-  <div class="services">
-    <div class="service">
-      <h3>Leak Repairs</h3>
-      <p>Fixing leaky pipes, faucets, and fixtures efficiently and affordably.</p>
+  <!-- Header -->
+  <header class="bg-blue-700 text-white py-6 shadow">
+    <div class="max-w-7xl mx-auto px-4">
+      <h1 class="text-3xl font-bold">🚰 Plumbing Services</h1>
+      <p class="text-sm mt-1">Fast • Reliable • Affordable</p>
     </div>
-    <div class="service">
-      <h3>Drain Cleaning</h3>
-      <p>Quick clearing of blocked drains and sewer lines using modern equipment.</p>
+  </header>
+
+  <!-- Services -->
+  <section class="max-w-6xl mx-auto px-4 py-10">
+    <h2 class="text-2xl font-bold mb-6 text-center">🔧 Our Services</h2>
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div class="bg-white p-5 rounded-xl shadow">🚿 <strong>Tap Repair:</strong> Leaking or broken tap fixes.</div>
+      <div class="bg-white p-5 rounded-xl shadow">🚽 <strong>Toilet Fix:</strong> Flush, leakage, and blockage solutions.</div>
+      <div class="bg-white p-5 rounded-xl shadow">🧼 <strong>Drain Cleaning:</strong> Unclog sinks and pipelines.</div>
+      <div class="bg-white p-5 rounded-xl shadow">🔥 <strong>Geyser Install:</strong> Electric & gas geyser setup.</div>
+      <div class="bg-white p-5 rounded-xl shadow">🧰 <strong>Leak Repairs:</strong> Pipe leakage and replacements.</div>
+      <div class="bg-white p-5 rounded-xl shadow">🏠 <strong>Bathroom Setup:</strong> Full plumbing fitting for bathrooms.</div>
     </div>
-    <div class="service">
-      <h3>Bathroom Installations</h3>
-      <p>Professional fitting and plumbing for new bathrooms and renovations.</p>
+  </section>
+
+  <!-- Booking -->
+  <section class="bg-white py-10 px-4">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-2xl font-bold mb-4 text-center">📅 Book a Plumber</h2>
+      <form id="bookingForm" class="space-y-4 bg-gray-50 p-6 rounded-xl shadow">
+        <input type="text" name="name" placeholder="Your Name" required class="w-full px-4 py-2 border rounded-lg" id="nameField">
+        <input type="tel" name="phone" placeholder="Phone Number" required class="w-full px-4 py-2 border rounded-lg">
+        <input type="email" name="email" placeholder="Email Address" required class="w-full px-4 py-2 border rounded-lg" id="emailField">
+        <textarea name="address" rows="2" placeholder="Full Address" required class="w-full px-4 py-2 border rounded-lg"></textarea>
+        <select name="service" required class="w-full px-4 py-2 border rounded-lg">
+          <option value="">Select Service</option>
+          <option>Tap Repair</option>
+          <option>Toilet Fix</option>
+          <option>Drain Cleaning</option>
+          <option>Geyser Installation</option>
+          <option>Leakage Repair</option>
+          <option>Full Bathroom Fitting</option>
+        </select>
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Book Now</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Floating Buttons -->
+  <div class="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
+    <button onclick="toggleChat()" class="bg-blue-600 text-white p-4 rounded-full shadow-lg">💬</button>
+    <button onclick="toggleTrack()" class="bg-green-600 text-white p-4 rounded-full shadow-lg">📩</button>
+  </div>
+
+  <!-- Chat Box -->
+  <div id="chatBox" class="fixed bottom-24 right-4 w-80 bg-white border rounded-xl shadow-xl z-50 overflow-hidden">
+    <div class="bg-blue-700 text-white p-4 flex justify-between items-center">
+      <span class="font-semibold">Plumber Chat</span>
+      <button onclick="toggleChat()">✖</button>
+    </div>
+    <div id="chatMessages" class="h-64 overflow-y-auto p-3 bg-gray-50 space-y-2 text-sm"></div>
+    <div class="flex border-t p-2">
+      <input id="chatInput" type="text" placeholder="Type a message..." class="flex-1 px-3 py-2 border rounded-l-md">
+      <button onclick="sendMessage()" class="bg-blue-600 text-white px-4 rounded-r-md">Send</button>
     </div>
   </div>
-</section>
 
-<section id="contact">
-  <h2>Contact Us</h2>
-  <form>
-    <input type="text" name="name" placeholder="Your Name" required>
-    <input type="tel" name="phone" placeholder="Phone Number" required>
-    <input type="email" name="email" placeholder="Email Address" required>
-    <textarea name="message" placeholder="How can we help you?" rows="5" required></textarea>
-    <button type="submit">Send Message</button>
-  </form>
-</section>
+  <!-- Track Box -->
+  <div id="trackBox" class="fixed bottom-24 right-24 w-96 bg-white border rounded-xl shadow-xl z-50 p-4">
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="text-lg font-semibold text-blue-700">📦 Track Booking</h3>
+      <button onclick="toggleTrack()">✖</button>
+    </div>
+    <input type="email" id="trackEmail" placeholder="Enter your email" class="w-full px-3 py-2 border rounded mb-2"/>
+    <button onclick="trackBooking()" class="w-full bg-green-600 text-white py-2 rounded mb-4">Track</button>
+    <div id="trackResults" class="text-sm max-h-64 overflow-y-auto space-y-2"></div>
+  </div>
 
-<footer>
-  <p>&copy; 2025 ProFlow Plumbing Solutions | Emergency Service: (123) 456-7890</p>
-</footer>
+  <!-- Footer -->
+  <footer class="bg-blue-700 text-white py-4 text-center mt-10">
+    &copy; 2025 BeSure Multi-Service App | Plumbing Services
+  </footer>
 
+  <!-- Firebase & Telegram Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, deleteDoc, getDocs, doc, serverTimestamp, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-example-KEY",
+      authDomain: "multi-service-app-77dd8.firebaseapp.com",
+      projectId: "multi-service-app-77dd8",
+      storageBucket: "multi-service-app-77dd8.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:yourappid"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const botToken = "7458392373:AAFfQ-C-AZLoQboxuA5fRZEuRoT8ShkRVNE";
+    const chatId = "5547663296";
+
+    // Autofill
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById("emailField").value = localStorage.getItem("email") || "";
+      document.getElementById("nameField").value = localStorage.getItem("name") || "";
+    });
+
+    // Booking Handler
+    document.getElementById("bookingForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        name: form.name.value,
+        phone: form.phone.value,
+        email: form.email.value,
+        address: form.address.value,
+        service: form.service.value,
+        timestamp: serverTimestamp(),
+        status: "Pending"
+      };
+      localStorage.setItem("email", data.email);
+      localStorage.setItem("name", data.name);
+      try {
+        await addDoc(collection(db, "plumbing_bookings"), data);
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(`📬 New Booking:\n👤 ${data.name}\n📞 ${data.phone}\n🏠 ${data.address}\n🛠️ ${data.service}`)}`);
+        alert("Booking successful!");
+        form.reset();
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    });
+
+    // Chat
+    window.sendMessage = async () => {
+      const msg = document.getElementById("chatInput").value.trim();
+      const name = localStorage.getItem("name") || "Customer";
+      if (!msg) return;
+      await addDoc(collection(db, "plumber_chat"), { sender: name, text: msg, timestamp: serverTimestamp() });
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent("💬 " + name + ": " + msg)}`);
+      document.getElementById("chatInput").value = "";
+    };
+
+    const chatBox = document.getElementById("chatMessages");
+    const chatQuery = query(collection(db, "plumber_chat"), orderBy("timestamp"));
+    onSnapshot(chatQuery, snapshot => {
+      chatBox.innerHTML = "";
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        const me = d.sender === (localStorage.getItem("name") || "Customer");
+        chatBox.innerHTML += `<div class="${me ? 'text-right' : 'text-left'}"><span class="inline-block px-3 py-1 rounded-xl ${me ? 'bg-blue-100' : 'bg-gray-200'}">${d.text}</span></div>`;
+      });
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    // Toggle UI
+    window.toggleChat = () => {
+      const c = document.getElementById("chatBox");
+      c.style.display = c.style.display === "none" ? "block" : "none";
+    };
+    window.toggleTrack = () => {
+      const t = document.getElementById("trackBox");
+      t.style.display = t.style.display === "none" ? "block" : "none";
+    };
+
+    // Track Booking
+    window.trackBooking = async () => {
+      const email = document.getElementById("trackEmail").value;
+      const resultBox = document.getElementById("trackResults");
+      resultBox.innerHTML = "🔄 Loading...";
+      const q = query(collection(db, "plumbing_bookings"), where("email", "==", email));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        resultBox.innerHTML = "❌ No bookings found.";
+        return;
+      }
+      resultBox.innerHTML = "";
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        const ts = d.timestamp?.toDate();
+        const now = Date.now();
+        const allowCancel = ts && (now - ts.getTime()) < 600000;
+        resultBox.innerHTML += `
+          <div class="border p-2 rounded bg-gray-50">
+            <strong>${d.service}</strong><br/>
+            📍 ${d.address}<br/>
+            🕒 ${ts}<br/>
+            🟡 Status: <b>${d.status || "Pending"}</b><br/>
+            ${allowCancel ? `<button onclick="cancelBooking('${docSnap.id}')" class="mt-2 bg-red-600 text-white px-3 py-1 rounded">Cancel</button>` : ""}
+          </div>`;
+      });
+    };
+
+    // Cancel Booking
+    window.cancelBooking = async (id) => {
+      if (confirm("Are you sure you want to cancel this booking?")) {
+        await deleteDoc(doc(db, "plumbing_bookings", id));
+        alert("Booking cancelled.");
+        trackBooking();
+      }
+    };
+  </script>
 </body>
 </html>
