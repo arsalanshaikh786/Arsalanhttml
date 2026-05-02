@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>QuickRide - Customer</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root { --primary: #f1c40f; --dark: #1a1a1a; --success: #27ae60; --danger: #e74c3c; }
+        body { margin: 0; font-family: sans-serif; background: #f4f4f4; overflow: hidden; }
+        #map { height: 100vh; width: 100%; position: absolute; z-index: 1; }
+        .ui-card { 
+            position: fixed; bottom: 0; width: 100%; background: white; z-index: 1000;
+            border-top-left-radius: 25px; border-top-right-radius: 25px;
+            padding: 20px; box-sizing: border-box; box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+        }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
+        .btn { width: 100%; padding: 16px; background: var(--dark); color: var(--primary); border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; }
+        .status-box { text-align: center; display: none; }
+        .cancel-link { color: var(--danger); display: block; margin-top: 15px; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .driver-card { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px dashed #ccc; }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="bookingUI" class="ui-card">
+    <h2 style="margin-top:0;">Book a Ride 🚖</h2>
+    <input type="text" id="custName" placeholder="Your Name">
+    <input type="tel" id="custPhone" placeholder="Mobile Number">
+    <input type="text" id="dest" placeholder="Destination Address">
+    <p style="color:var(--success); font-weight:bold;">Fare: ₹5 / km</p>
+    <button id="bookBtn" class="btn">REQUEST RIDE</button>
+</div>
+
+<div id="trackingUI" class="ui-card" style="display:none;">
+    <div class="status-box" id="statusBox" style="display:block;">
+        <h3 id="statusLabel" style="color:var(--danger);">Searching for Driver...</h3>
+        <div id="driverDetails" class="driver-card">
+            Please wait while we connect you to a driver.
+        </div>
+        <a href="#" class="cancel-link" id="cancelBtn">CANCEL RIDE</a>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBcXm5QQaYCCddVXNgGqTBAszdKEK-0PJQ",
+      authDomain: "multi-service-app-77dd8.firebaseapp.com",
+      projectId: "multi-service-app-77dd8",
+      storageBucket: "multi-service-app-77dd8.appspot.com",
+      messagingSenderId: "123732555482",
+      appId: "1:123732555482:web:ea47c825e0dbb504f597e3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const map = L.map('map', {zoomControl: false}).setView([0,0], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    let userPos = null;
+    let rideId = null;
+    let driverMarker = null;
+
+    map.locate({setView: true, watch: true});
+    map.on('locationfound', (e) => {
+        userPos = e.latlng;
+        L.circle(e.latlng, {radius: 10, color: 'blue'}).addTo(map);
+    });
+
+    document.getElementById('bookBtn').onclick = async () => {
+        const name = document.getElementById('custName').value;
+        const phone = document.getElementById('custPhone').value;
+        const destination = document.getElementById('dest').value;
+
+        if(!name || !phone || !userPos) return alert("Please fill all details and enable GPS");
+
+        const docRef = await addDoc(collection(db, "bookings"), {
+            name, phone, dest: destination,
+            lat: userPos.lat, lng: userPos.lng,
+            status: "Pending",
+            driverLat: null, driverLng: null
+        });
+
+        rideId = docRef.id;
+        document.getElementById('bookingUI').style.display = 'none';
+        document.getElementById('trackingUI').style.display = 'block';
+        
+        // Listen for Driver Updates
+        onSnapshot(doc(db, "bookings", rideId), (snap) => {
+            if(!snap.exists()) {
+                alert("Ride Cancelled");
+                location.reload();
+                return;
+            }
+            const data = snap.data();
+            document.getElementById('statusLabel').innerText = "Status: " + data.status;
+
+            if(data.driverPhone) {
+                document.getElementById('statusLabel').style.color = "green";
+                document.getElementById('driverDetails').innerHTML = `
+                    <strong>Driver: ${data.driverName}</strong><br>
+                    <a href="tel:${data.driverPhone}" style="color:green; text-decoration:none; font-weight:bold;">📞 Call: ${data.driverPhone}</a>
+                `;
+                
+                if(data.driverLat) {
+                    const dPos = [data.driverLat, data.driverLng];
+                    if(!driverMarker) {
+                        driverMarker = L.marker(dPos, {icon: L.divIcon({html: '🚕', className: 't-icon'})}).addTo(map);
+                    } else {
+                        driverMarker.setLatLng(dPos);
+                    }
+                }
+            }
+        });
+    };
+
+    document.getElementById('cancelBtn').onclick = async (e) => {
+        e.preventDefault();
+        if(confirm("Cancel ride?")) {
+            await deleteDoc(doc(db, "bookings", rideId));
+            location.reload();
+        }
+    };
+</script>
+</body>
+</html>

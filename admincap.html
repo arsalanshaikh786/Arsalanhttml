@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Live Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { display: flex; height: 100vh; margin: 0; font-family: sans-serif; background: #eee; }
+        #sidebar { width: 380px; background: white; padding: 20px; overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 10; }
+        #map { flex-grow: 1; }
+        .order-card { border: 1px solid #ddd; padding: 15px; border-radius: 12px; margin-bottom: 15px; background: #fff; }
+        .acc-btn { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .nav-btn { display: block; text-align: center; margin-top: 10px; padding: 10px; background: #3498db; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; }
+        input { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <h2>🚖 Incoming Rides</h2>
+    <div style="background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:20px;">
+        <small>Driver Settings:</small>
+        <input type="text" id="dName" value="Rahul Driver">
+        <input type="tel" id="dPhone" value="9876543210">
+    </div>
+    <div id="orderList">Waiting for orders...</div>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBcXm5QQaYCCddVXNgGqTBAszdKEK-0PJQ",
+      authDomain: "multi-service-app-77dd8.firebaseapp.com",
+      projectId: "multi-service-app-77dd8",
+      storageBucket: "multi-service-app-77dd8.appspot.com",
+      messagingSenderId: "123732555482",
+      appId: "1:123732555482:web:ea47c825e0dbb504f597e3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const map = L.map('map').setView([20.5, 78.9], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    let driverPos = null;
+    let markers = {};
+
+    // 1. Track Driver Live Location
+    map.locate({watch: true});
+    map.on('locationfound', (e) => {
+        driverPos = e.latlng;
+        if(!markers['driver']) {
+            markers['driver'] = L.marker(e.latlng, {icon: L.divIcon({html:'🚕'})}).addTo(map);
+        } else {
+            markers['driver'].setLatLng(e.latlng);
+        }
+    });
+
+    // 2. Real-time Order Listener (FIX FOR ORDERS NOT SHOWING)
+    onSnapshot(collection(db, "bookings"), (snap) => {
+        const list = document.getElementById('orderList');
+        list.innerHTML = "";
+        
+        snap.forEach(d => {
+            const ride = d.data();
+            const id = d.id;
+
+            // Add Marker for Customer
+            if(!markers[id]) markers[id] = L.marker([ride.lat, ride.lng]).addTo(map).bindPopup(ride.name);
+
+            const card = document.createElement('div');
+            card.className = "order-card";
+            card.innerHTML = `
+                <strong>${ride.name}</strong><br>
+                📍 Dest: ${ride.dest}<br>
+                📞 Customer: <a href="tel:${ride.phone}">${ride.phone}</a><br><br>
+                <button class="acc-btn" onclick="acceptRide('${id}')">ACCEPT & TRACK</button>
+                <a class="nav-btn" href="https://www.google.com/maps/dir/?api=1&destination=${ride.lat},${ride.lng}" target="_blank">🧭 Open Navigation</a>
+                <button style="border:none; background:none; color:red; cursor:pointer; width:100%; margin-top:10px;" onclick="done('${id}')">Complete</button>
+            `;
+            list.appendChild(card);
+        });
+    });
+
+    window.acceptRide = async (id) => {
+        if(!driverPos) return alert("Waiting for GPS...");
+        await updateDoc(doc(db, "bookings", id), {
+            status: "Driver Arriving",
+            driverName: document.getElementById('dName').value,
+            driverPhone: document.getElementById('dPhone').value,
+            driverLat: driverPos.lat,
+            driverLng: driverPos.lng
+        });
+        alert("Accepted!");
+    };
+
+    window.done = async (id) => {
+        await deleteDoc(doc(db, "bookings", id));
+        if(markers[id]) map.removeLayer(markers[id]);
+    };
+</script>
+</body>
+</html>
